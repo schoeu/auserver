@@ -7,18 +7,16 @@ import (
 
 var (
 	actions = [3]string{"count", "domains", "tags"}
+	port = ":8910"
 )
 
 func main () {
 	router := gin.Default()
 
-	// This handler will match /user/john but will not match neither /user/ or /user
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Server is ok.")
 	})
 
-	// However, this one will match /user/john/ and also /user/john/send
-	// If no other routers match /user/john, it will redirect to /user/john/
 	router.GET("/mipdata/:type", func(c *gin.Context) {
 		hit := false
 		dataType := c.Param("type")
@@ -30,12 +28,15 @@ func main () {
 			}
 		}
 
-		if (!hit) {
-			c.String(http.StatusOK, "error")
+		if !hit {
+			c.JSON(200, gin.H{
+				"status":  "1",
+				"message": "No such operations",
+			})
 		}
 	})
 
-	router.Run(":8910")
+	router.Run(port)
 }
 
 func processAct (c *gin.Context) {
