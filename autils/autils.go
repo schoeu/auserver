@@ -39,12 +39,14 @@ func AnaDate (q interface{}) (string, string) {
 
 func AnaTagName (q interface{}) string {
 	cotent := q.([]interface{})
+	dateVal := ""
 	for _, v := range cotent {
 		tm := v.(map[string]interface{})
 		t := tm["t"]
 		if t == "tag_name" {
-			dateVal := tm["v"].(string)
-			return dateVal
+			dateVal = tm["v"].(string)
+
 		}
 	}
+	return dateVal
 }
