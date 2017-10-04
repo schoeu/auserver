@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"strconv"
 	"net/http"
-	"strings"
 )
 type dateCtt []string
 
@@ -38,22 +37,7 @@ const (
 func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	dateList := dateCtt{}
 
-	cData := q.([]interface{})
-
-	sDate := ""
-	eDate := ""
-
-	for _, v := range cData {
-		tm := v.(map[string]interface{})
-		t := tm["t"]
-		if t == "daterange" {
-			dateVal := strings.Split(tm["v"].(string), ",")
-			sDate = dateVal[0]
-			eDate = dateVal[1]
-		}
-	}
-
-
+	sDate, eDate := autils.AnaDate(q)
 	vas, _ := time.Parse(shortForm, sDate)
 	vae, _ := time.Parse(shortForm, eDate)
 

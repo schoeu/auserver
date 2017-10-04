@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"database/sql"
-	"time"
 	"net/http"
+	"time"
 )
 
 type domainStruct struct {
@@ -26,7 +26,9 @@ type rsDataStruct struct {
 	Rows []rowsInfo `json:"rows"`
 }
 
-func DomainUrl(c *gin.Context, db *sql.DB) {
+const urlPrefix  = "/list/"
+
+func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	var columesData []domainStruct
 	urlsMap := map[string]string{}
 
@@ -50,7 +52,17 @@ func DomainUrl(c *gin.Context, db *sql.DB) {
 
 	t := autils.GetCurrentData(time.Now())
 
-	rows, err := db.Query("select domain,url_count,urls from domain where ana_date = ? order by url_count desc limit 100", t)
+	sDate, eDate := autils.AnaDate(q)
+	vas, _ := time.Parse(shortForm, sDate)
+	vae, _ := time.Parse(shortForm, eDate)
+	s := t
+	e := t
+	if vae.After(vas) {
+		s = sDate
+		e = eDate
+	}
+
+	rows, err := db.Query("select domain,url_count,urls from domain where ana_date between ? and ? order by url_count desc limit 100", s, e)
 	myRow = rows
 	if err != nil {
 		log.Fatal(err)
@@ -64,6 +76,8 @@ func DomainUrl(c *gin.Context, db *sql.DB) {
 		urlsMap[name] = urls
 		ri.Domain = name
 		ri.Count = count
+		ri.Example = "列表</a>"
+		ri.Url = urlPrefix + name
 		rs.Rows = append(rs.Rows, ri)
 	}
 	err = rows.Err()

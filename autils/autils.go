@@ -20,3 +20,19 @@ func GetCwd() string {
 	}
 	return dir
 }
+
+func AnaDate (q interface{}) (string, string) {
+	cData := q.([]interface{})
+	sDate := ""
+	eDate := ""
+	for _, v := range cData {
+		tm := v.(map[string]interface{})
+		t := tm["t"]
+		if t == "daterange" {
+			dateVal := strings.Split(tm["v"].(string), ",")
+			sDate = dateVal[0]
+			eDate = dateVal[1]
+		}
+	}
+	return sDate, eDate
+}
