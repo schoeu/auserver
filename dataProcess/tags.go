@@ -19,7 +19,7 @@ var (
 	others = "others"
 )
 
-func QueryTagsUrl(c *gin.Context, db *sql.DB) {
+func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	itArr := []infoType{}
 	it := infoType{}
 
@@ -28,8 +28,19 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB) {
 	sum := 0
 
 	date := autils.GetCurrentData(time.Now())
+	s := date
+	e := date
 
-	rows, err := db.Query("select tag_name, url_count from tags  where ana_date = ? order by tags.url_count desc", date)
+	sDate, eDate := autils.AnaDate(q)
+	vas, _ := time.Parse(shortForm, sDate)
+	vae, _ := time.Parse(shortForm, eDate)
+
+	if vae.After(vas) {
+		s = sDate
+		e = eDate
+	}
+
+	rows, err := db.Query("select tag_name, url_count from tags  where ana_date between ? and ? order by tags.url_count desc", s, e)
 
 	if err != nil {
 		log.Fatal(err)
