@@ -4,14 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"database/sql"
 	"log"
-	"fmt"
 	"net/http"
 	"strings"
 )
 
 type rs struct {
 	Urls []string `json:"urls"`
-	Count int `json:"count"`
 	Date string `json:"date"`
 }
 
@@ -27,21 +25,19 @@ func getDomain(d string, db *sql.DB) []rs{
 	urlsMap := []rs{}
 
 	date := ""
-	count := 0
 	urls := ""
-	rows, err := db.Query("select urls,url_count,ana_date from domain where domain = ? order by url_count desc limit 50", d)
+	rows, err := db.Query("select urls,ana_date from domain where domain = ? order by url_count desc limit 50", d)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&urls, &count, &date)
+		err := rows.Scan(&urls, &date)
 		if err != nil {
 			log.Fatal(err)
 		}
 		rsIt.Urls = strings.Split(urls, ",")
-		rsIt.Count = count
-		rsIt.Date = date
+		rsIt.Date = strings.Split(date, "T")[0]
 
 		urlsMap = append(urlsMap, rsIt)
 	}
@@ -57,7 +53,6 @@ func getDomain(d string, db *sql.DB) []rs{
 
 func RenderTpl(c *gin.Context, domain string, db *sql.DB) {
 	data := getDomain(domain, db)
-	fmt.Println(data)
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"data": data,
 		"title": "MIP数据",

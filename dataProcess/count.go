@@ -24,12 +24,6 @@ type lineStruct struct {
 }
 
 
-type queryStruct struct {
-	T string
-	K string
-	V string
-}
-
 type tagsMap map[string] dateCtt
 
 var (
