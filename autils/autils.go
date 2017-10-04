@@ -36,3 +36,15 @@ func AnaDate (q interface{}) (string, string) {
 	}
 	return sDate, eDate
 }
+
+func AnaTagName (q interface{}) string {
+	cotent := q.([]interface{})
+	for _, v := range cotent {
+		tm := v.(map[string]interface{})
+		t := tm["t"]
+		if t == "tag_name" {
+			dateVal := tm["v"].(string)
+			return dateVal
+		}
+	}
+}
