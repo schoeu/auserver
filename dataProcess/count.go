@@ -2,33 +2,30 @@ package dataProcess
 
 import (
 	"../autils"
+	"bytes"
+	"database/sql"
 	"github.com/gin-gonic/gin"
 	"log"
-	"database/sql"
-	"time"
-	"bytes"
-	"strconv"
+	"math/rand"
 	"net/http"
+	"regexp"
+	"strconv"
+	"time"
 )
+
 type dateCtt []string
 
-type seriesType struct{
+type seriesType struct {
 	Name string  `json:"name"`
 	Data dateCtt `json:"data"`
 }
 
 type lineStruct struct {
-	Categories []string `json:"categories"`
-	Series []seriesType `json:"series"`
+	Categories []string     `json:"categories"`
+	Series     []seriesType `json:"series"`
 }
 
-
-type tagsMap map[string] dateCtt
-
-var (
-	myRow  *sql.Rows
-	flags = [26]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
-)
+type tagsMap map[string]dateCtt
 
 const (
 	shortForm = "2006-01-02"
@@ -40,6 +37,8 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	sDate, eDate := autils.AnaDate(q)
 	vas, _ := time.Parse(shortForm, sDate)
 	vae, _ := time.Parse(shortForm, eDate)
+
+	sqlStr := ""
 
 	if vae.After(vas) {
 		t := vas
@@ -56,12 +55,11 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		}
 	} else {
 		now := time.Now()
-		for i:= -1; i< 1;i++ {
+		for i := -1; i < 1; i++ {
 			t := now.AddDate(0, 0, i)
 			dateList = append(dateList, autils.GetCurrentData(t))
 		}
 	}
-
 
 	ls := lineStruct{}
 	st := seriesType{}
@@ -73,8 +71,11 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	*/
 
 	name := ""
-	count := 0
 	dbDate := ""
+
+	tn := autils.AnaChained(q)
+	match, err := regexp.MatchString("mip-", tn)
+
 	var bf bytes.Buffer
 	for i, v := range dateList {
 		if i != 0 {
@@ -82,27 +83,40 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		}
 		bf.WriteString(" select * from (select tag_name,url_count,ana_date from tags where ana_date = '")
 		bf.WriteString(v)
+
+		if match && err == nil {
+			bf.WriteString("' and tag_name='")
+			bf.WriteString(tn)
+		}
+
 		bf.WriteString("' order by url_count desc limit 10) as ")
-		bf.WriteString(flags[i])
+		bf.WriteString("a" + strconv.Itoa(rand.Intn(10000000)))
 
 	}
 	bf.WriteString(" order by ana_date")
 
-	sqlStr := bf.String()
+	// select tag_name,url_count,ana_date from tags where ana_date= ?
+
+	sqlStr = bf.String()
+
 	rows, err := db.Query(sqlStr)
-	myRow = rows
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	tm := tagsMap{}
 	for rows.Next() {
-		err := rows.Scan(&name, &count, &dbDate)
+		var ct sql.NullInt64
+		err := rows.Scan(&name, &ct, &dbDate)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		tm[name] = append(tm[name], strconv.Itoa(count))
+		if ct.Valid {
+			tm[name] = append(tm[name], strconv.Itoa(int(ct.Int64)))
+		} else {
+			tm[name] = append(tm[name], strconv.Itoa(0))
+		}
 	}
 	err = rows.Err()
 	if err != nil {
@@ -116,11 +130,11 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 	ls.Categories = dateList
 
-	defer myRow.Close()
+	defer rows.Close()
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":  0,
-		"msg": "ok",
-		"data": ls,
+		"status": 0,
+		"msg":    "ok",
+		"data":   ls,
 	})
 }

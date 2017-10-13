@@ -2,20 +2,21 @@ package dataProcess
 
 import (
 	"../autils"
+	"database/sql"
 	"github.com/gin-gonic/gin"
 	"log"
-	"database/sql"
-	"time"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type infoType struct {
-	Name string `json:"name"`
-	Value int	`json:"value"`
+	Name  string `json:"name"`
+	Value int    `json:"value"`
 }
 
 var (
-	max = 10
+	max    = 15
 	others = "others"
 )
 
@@ -27,20 +28,15 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	count := 0
 	sum := 0
 
-	date := autils.GetCurrentData(time.Now())
-	s := date
-	e := date
-
-	sDate, eDate := autils.AnaDate(q)
-	vas, _ := time.Parse(shortForm, sDate)
-	vae, _ := time.Parse(shortForm, eDate)
-
-	if vae.After(vas) {
-		s = sDate
-		e = eDate
+	maxLenth := c.Query("max")
+	if maxLenth != "" {
+		max, _ = strconv.Atoi(maxLenth)
 	}
 
-	rows, err := db.Query("select tag_name, url_count from tags  where ana_date between ? and ? order by tags.url_count desc", s, e)
+	t := time.Now()
+	t = t.AddDate(0, 0, -1)
+	date := autils.GetCurrentData(t)
+	rows, err := db.Query("select tag_name, url_count from tags  where ana_date = ? order by tags.url_count desc", date)
 
 	if err != nil {
 		log.Fatal(err)
@@ -63,7 +59,7 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	otherNum := 0
 	for k, v := range itArr {
-		if k < 10 {
+		if k < max {
 			itArr[k].Value = v.Value
 			otherNum += v.Value
 		}
@@ -73,6 +69,10 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		itArr = nil
 	}
 
+	if len(itArr) < max {
+		max = len(itArr)
+	}
+
 	rsItArr := itArr[:max]
 
 	it.Name = others
@@ -80,9 +80,9 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	rsItArr = append(rsItArr, it)
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":  0,
-		"msg": "ok",
-		"data": rsItArr,
+		"status": 0,
+		"msg":    "ok",
+		"data":   rsItArr,
 	})
 
 }

@@ -1,36 +1,65 @@
 package dataProcess
 
 import (
+	"../autils"
 	"database/sql"
-	"log"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"time"
 )
 
-type t struct {
-	Name string `json:"name"`
+type sltType struct {
+	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-func getTagData(db *sql.DB) []t{
+type rsType struct {
+	Children []sltType `json:"children"`
+	Name  string `json:"name"`
+	Value int `json:"value"`
+}
 
-	rst := t{}
-	ta := []t{}
+func getTagData(db *sql.DB) []rsType {
+	rse := rsType{}
+	rseArr := []rsType{}
+
+	rse.Name = "核心组件"
+	rse.Value = 1
+	rseArr = append(rseArr, rse)
+	rse.Name = "扩展组件"
+	rse.Value = 2
+	rseArr = append(rseArr, rse)
+	rse.Name = "站长组件"
+	rse.Value = 3
+	rseArr = append(rseArr, rse)
+
+	t := time.Now()
+	t = t.AddDate(0, 0, -1)
+	yesterday := autils.GetCurrentData(t)
 
 	tags := ""
-	rows, err := db.Query("select distinct tag_name from tags order by url_count desc")
+	tagType := 0
+	rows, err := db.Query("select distinct tag_name, tag_type from tags where ana_date = ? order by url_count desc", yesterday)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&tags)
+		rst := sltType{}
+		err := rows.Scan(&tags, &tagType)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		rst.Name = tags
 		rst.Value = tags
-		ta = append(ta, rst)
+
+		for i, v := range rseArr {
+			if v.Value == tagType {
+				rseArr[i].Children = append(rseArr[i].Children, rst)
+			}
+		}
 	}
 	err = rows.Err()
 	if err != nil {
@@ -39,14 +68,14 @@ func getTagData(db *sql.DB) []t{
 
 	defer rows.Close()
 
-	return ta
+	return rseArr
 }
 
 func GetSelect(c *gin.Context, db *sql.DB) {
 	data := getTagData(db)
 	c.JSON(http.StatusOK, gin.H{
-		"status":  0,
-		"msg": "ok",
-		"data": data,
+		"status": 0,
+		"msg":    "ok",
+		"data":   data,
 	})
 }

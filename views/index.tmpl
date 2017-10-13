@@ -3,22 +3,26 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
+    <title>{{.title}}</title>
     <style type="text/css">
         table{border-collapse:collapse;margin: 0 auto;width: 100%;}
         table,th,td{border:1px solid #ccc;padding:5px 10px;}
         th{background:#ddd}
+        th:first-child {
+            width: 10%;
+        }
         tr:hover td{background:#fbf8e9}
-        .bbe td{background:#eee}
-        .bbf td{background:#fff}
+        h2 {
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
 <div>
-
+    <h2>域名 {{.domain}} 数据</h2>
     {{range $i, $v := .data}}
-        <h3>{{.Date}} 数据</h3>
+        <h3>{{.Date}}</h3>
         <table>
             <thead>
             <tr>
@@ -29,7 +33,7 @@
             {{range $idx, $url := .Urls}}
                 <tr>
                     <td>{{$idx}}</td>
-                    <td><a href="{{$url}}">{{$url}}</a></td>
+                    <td><a href="{{$url}}" target="_blank">{{$url}}</a></td>
                 </tr>
             {{end}}
         </table>
