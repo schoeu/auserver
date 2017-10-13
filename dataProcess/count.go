@@ -90,7 +90,8 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		}
 
 		bf.WriteString("' order by url_count desc limit 10) as ")
-		bf.WriteString("a" + strconv.Itoa(rand.Intn(10000000)))
+		bf.WriteString("a")
+		bf.WriteString(strconv.Itoa(rand.Intn(10000000)))
 
 	}
 	bf.WriteString(" order by ana_date")

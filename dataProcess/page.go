@@ -84,7 +84,6 @@ func getTgs(d string, db *sql.DB, l int) []rs {
 }
 
 func RenderDomainTpl(c *gin.Context, domain string, db *sql.DB) {
-
 	l := getLength(c)
 
 	data := getDomain(domain, db, l)
@@ -97,7 +96,6 @@ func RenderDomainTpl(c *gin.Context, domain string, db *sql.DB) {
 }
 
 func RenderTagTpl(c *gin.Context, tagName string, db *sql.DB) {
-
 	l := getLength(c)
 	data := getTgs(tagName, db, l)
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{

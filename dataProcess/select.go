@@ -21,18 +21,16 @@ type rsType struct {
 }
 
 func getTagData(db *sql.DB) []rsType {
-	rse := rsType{}
-	rseArr := []rsType{}
-
-	rse.Name = "核心组件"
-	rse.Value = 1
-	rseArr = append(rseArr, rse)
-	rse.Name = "扩展组件"
-	rse.Value = 2
-	rseArr = append(rseArr, rse)
-	rse.Name = "站长组件"
-	rse.Value = 3
-	rseArr = append(rseArr, rse)
+	rseArr := []rsType{{
+		Name:  "核心组件",
+		Value: 1,
+	}, {
+		Name:  "扩展组件",
+		Value: 2,
+	}, {
+		Name:  "站长组件",
+		Value: 3,
+	}}
 
 	t := time.Now()
 	t = t.AddDate(0, 0, -1)

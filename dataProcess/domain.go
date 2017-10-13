@@ -33,24 +33,9 @@ const urlPrefix = "/list/domain/"
 var maxLenth = 100
 
 func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
-	var columesData []domainStruct
-	urlsMap := map[string]string{}
 
 	ri := rowsInfo{}
 	rs := rsDataStruct{}
-
-	ds := domainStruct{}
-	ds.Name = "域名"
-	ds.Id = "domain"
-	columesData = append(columesData, ds)
-	ds.Name = "链接数"
-	ds.Id = "count"
-	ds.TextAlign = "center"
-	columesData = append(columesData, ds)
-	ds.Name = "示例url"
-	ds.Id = "example"
-	ds.TextAlign = "center"
-	columesData = append(columesData, ds)
 
 	name := ""
 	urls := ""
@@ -81,7 +66,6 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		urlsMap[name] = urls
 		ri.Domain = name
 		ri.Count = count
 		ri.Example = "<a href='http://" + c.Request.Host + urlPrefix + name + "' target='_blank'>查看详情</a>"
@@ -95,7 +79,23 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	defer rows.Close()
 
-	rs.Columns = columesData
+	rs.Columns = []domainStruct{
+		{
+			"域名",
+			"domain",
+			"",
+		},
+		{
+			"链接数",
+			"count",
+			"center",
+		},
+		{
+			"示例url",
+			"example",
+			"center",
+		},
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
