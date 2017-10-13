@@ -36,33 +36,12 @@ const tgPrefix = "/list/tags/"
 var tgMax = 100
 
 func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
-	var columesData []tgStruct
-	urlsMap := map[string]string{}
 
 	ri := tgRowsInfo{}
 	rs := tgDataStruct{}
 
-	ds := tgStruct{}
-	ds.Name = "组件名"
-	ds.Id = "domain"
-	columesData = append(columesData, ds)
-	ds.Name = "引用数"
-	ds.Id = "count"
-	ds.TextAlign = "center"
-	columesData = append(columesData, ds)
-	ds.Name = "站点引用量"
-	ds.Id = "domainCount"
-	ds.TextAlign = "center"
-	columesData = append(columesData, ds)
-	ds.Name = "示例url"
-	ds.Id = "example"
-	ds.TextAlign = "center"
-	columesData = append(columesData, ds)
-
-	name := ""
-	urls := ""
-	count := 0
-	domainCount := 0
+	var name, urls string
+	var count, domainCount int
 
 	ml := c.Query("max")
 	if ml != "" {
@@ -101,7 +80,6 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		urlsMap[name] = urls
 		ri.Domain = name
 		ri.Count = count
 		ri.Example = "<a href='http://" + c.Request.Host + tgPrefix + name + "' target='_blank'>查看详情</a>"
@@ -116,7 +94,23 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	defer rows.Close()
 
-	rs.Columns = columesData
+	rs.Columns = []tgStruct{{
+		"组件名",
+		"domain",
+		"",
+	}, {
+		"引用数",
+		"count",
+		"center",
+	}, {
+		"站点引用量",
+		"domainCount",
+		"center",
+	}, {
+		"示例url",
+		"example",
+		"center",
+	}}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,

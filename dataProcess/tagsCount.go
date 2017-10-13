@@ -37,9 +37,8 @@ var (
 
 func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	tr := tcRs{}
-	finalRs := []tcRs{}
-	name := ""
-	count := ""
+	finalRs := make([]tcRs, 200)
+	var name, count string
 	ml := c.Query("max")
 	if ml != "" {
 		tcMax, _ = strconv.Atoi(ml)

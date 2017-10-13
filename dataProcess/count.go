@@ -32,7 +32,7 @@ const (
 )
 
 func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
-	dateList := dateCtt{}
+	dateList := make(dateCtt, 10)
 
 	sDate, eDate := autils.AnaDate(q)
 	vas, _ := time.Parse(shortForm, sDate)

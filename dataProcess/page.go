@@ -55,8 +55,7 @@ func getTgs(d string, db *sql.DB, l int) []rs {
 	rsIt := rs{}
 	urlsMap := []rs{}
 
-	date := ""
-	urls := ""
+	var date, urls string
 	rows, err := db.Query("select urls,ana_date from tags where tag_name = ? order by url_count desc limit ?", d, l)
 	if err != nil {
 		log.Fatal(err)
@@ -96,6 +95,7 @@ func RenderDomainTpl(c *gin.Context, domain string, db *sql.DB) {
 }
 
 func RenderTagTpl(c *gin.Context, tagName string, db *sql.DB) {
+
 	l := getLength(c)
 	data := getTgs(tagName, db, l)
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{

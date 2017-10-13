@@ -31,11 +31,9 @@ var (
 
 func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	bit := barInfoType{}
-	bs := barSeries{}
-	bsLine := barSeries{}
-	name := ""
+	var bs, bsLine barSeries
+	var name, tCount string
 	count := 0
-	tCount := ""
 
 	maxLenth := c.Query("max")
 	if maxLenth != "" {
@@ -85,5 +83,4 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 		"msg":    "ok",
 		"data":   bit,
 	})
-
 }

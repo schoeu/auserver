@@ -37,8 +37,7 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	ri := rowsInfo{}
 	rs := rsDataStruct{}
 
-	name := ""
-	urls := ""
+	var name, urls string
 	count := 0
 
 	ml := c.Query("max")

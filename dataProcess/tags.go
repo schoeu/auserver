@@ -21,12 +21,11 @@ var (
 )
 
 func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
-	itArr := []infoType{}
+	itArr := make([]infoType, 100)
 	it := infoType{}
 
-	name := ""
-	count := 0
-	sum := 0
+	var count, sum int
+	var name string
 
 	maxLenth := c.Query("max")
 	if maxLenth != "" {
