@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./config"
 	"./autils"
+	"./config"
 	"./dataProcess"
 	"database/sql"
 	"encoding/json"

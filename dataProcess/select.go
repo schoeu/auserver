@@ -16,8 +16,8 @@ type sltType struct {
 
 type rsType struct {
 	Children []sltType `json:"children"`
-	Name  string `json:"name"`
-	Value int `json:"value"`
+	Name     string    `json:"name"`
+	Value    int       `json:"value"`
 }
 
 func getTagData(db *sql.DB) []rsType {

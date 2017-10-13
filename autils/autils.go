@@ -1,19 +1,19 @@
 package autils
 
 import (
-	"time"
-	"strings"
 	"log"
 	"os"
+	"strings"
+	"time"
 )
 
-func GetCurrentData(date time.Time) string{
+func GetCurrentData(date time.Time) string {
 	t := date.String()
 	return strings.Split(t, " ")[0]
 }
 
 type anaChain struct {
-	value string
+	value   string
 	content string
 }
 
@@ -26,7 +26,7 @@ func GetCwd() string {
 	return dir
 }
 
-func AnaDate (q interface{}) (string, string) {
+func AnaDate(q interface{}) (string, string) {
 	cData := q.([]interface{})
 	sDate := ""
 	eDate := ""
@@ -42,7 +42,7 @@ func AnaDate (q interface{}) (string, string) {
 	return sDate, eDate
 }
 
-func AnaSigleDate (q interface{}) string {
+func AnaSigleDate(q interface{}) string {
 	cData := q.([]interface{})
 	dateVal := ""
 	for _, v := range cData {
@@ -55,7 +55,7 @@ func AnaSigleDate (q interface{}) string {
 	return dateVal
 }
 
-func AnaSelect (q interface{}) string {
+func AnaSelect(q interface{}) string {
 	cotent := q.([]interface{})
 	dateVal := ""
 	for _, v := range cotent {
@@ -69,7 +69,7 @@ func AnaSelect (q interface{}) string {
 	return dateVal
 }
 
-func AnaChained (q interface{}) string {
+func AnaChained(q interface{}) string {
 	cotent := q.([]interface{})
 	dateVal := ""
 	for _, v := range cotent {
@@ -86,7 +86,7 @@ func AnaChained (q interface{}) string {
 	return dateVal
 }
 
-func AnaDrillDowns (q interface{}) string {
+func AnaDrillDowns(q interface{}) string {
 	cotent := q.([]interface{})
 	dateVal := ""
 	for _, v := range cotent {
@@ -95,7 +95,7 @@ func AnaDrillDowns (q interface{}) string {
 		item := t.(map[string]interface{})
 
 		for k, val := range item {
-			if k == "category"{
+			if k == "category" {
 				dateVal = val.(string)
 				break
 			}

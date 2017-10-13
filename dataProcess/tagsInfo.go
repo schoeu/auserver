@@ -23,7 +23,7 @@ type tgRowsInfo struct {
 	Count          int    `json:"count"`
 	Example        string `json:"example"`
 	Example_ishtml bool   `json:"example_ishtml"`
-	DomainCount    int	  `json:"domainCount"`
+	DomainCount    int    `json:"domainCount"`
 }
 
 type tgDataStruct struct {
