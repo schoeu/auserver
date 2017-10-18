@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -38,8 +37,6 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	vas, _ := time.Parse(shortForm, sDate)
 	vae, _ := time.Parse(shortForm, eDate)
 
-	sqlStr := ""
-
 	if vae.After(vas) {
 		t := vas
 		s := autils.GetCurrentData(t)
@@ -70,9 +67,7 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		select * from (select tag_name,url_count,ana_date from tags where ana_date = '2017-09-27'  order by url_count desc limit 10) as b
 	*/
 
-	name := ""
-	dbDate := ""
-
+	var name, dbDate string
 	tn := autils.AnaChained(q)
 	match, err := regexp.MatchString("mip-", tn)
 
@@ -96,22 +91,16 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 	bf.WriteString(" order by ana_date")
 
-	// select tag_name,url_count,ana_date from tags where ana_date= ?
-
-	sqlStr = bf.String()
+	sqlStr := bf.String()
 
 	rows, err := db.Query(sqlStr)
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	tm := tagsMap{}
 	for rows.Next() {
 		var ct sql.NullInt64
 		err := rows.Scan(&name, &ct, &dbDate)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 
 		if ct.Valid {
 			tm[name] = append(tm[name], strconv.Itoa(int(ct.Int64)))
@@ -120,9 +109,7 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		}
 	}
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for k, v := range tm {
 		st.Name = k

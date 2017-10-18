@@ -4,7 +4,6 @@ import (
 	"../autils"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"time"
 )
@@ -33,22 +32,18 @@ func getTagData(db *sql.DB) []rsType {
 	}}
 
 	t := time.Now()
-	t = t.AddDate(0, 0, -1)
+	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
 
 	tags := ""
 	tagType := 0
 	rows, err := db.Query("select distinct tag_name, tag_type from tags where ana_date = ? order by url_count desc", yesterday)
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for rows.Next() {
 		rst := sltType{}
 		err := rows.Scan(&tags, &tagType)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 
 		rst.Name = tags
 		rst.Value = tags
@@ -60,9 +55,7 @@ func getTagData(db *sql.DB) []rsType {
 		}
 	}
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	defer rows.Close()
 

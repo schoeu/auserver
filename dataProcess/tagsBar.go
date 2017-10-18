@@ -4,7 +4,6 @@ import (
 	"../autils"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -41,19 +40,15 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 
 	t := time.Now()
-	t = t.AddDate(0, 0, -1)
+	t = t.AddDate(0, 0, -2)
 	date := autils.GetCurrentData(t)
 	rows, err := db.Query("select tag_name, url_count, tag_count from tags where ana_date = ? order by tags.url_count desc limit ?", date, barMax)
+	autils.ErrHadle(err)
 
-	if err != nil {
-		log.Fatal(err)
-	}
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&name, &count, &tCount)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 
 		bit.Categories = append(bit.Categories, name)
 		bs.Data = append(bs.Data, count)
@@ -74,9 +69,7 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	bit.Series = append(bit.Series, bsLine)
 
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,

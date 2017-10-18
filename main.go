@@ -8,30 +8,29 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 	"net/http"
 	"path/filepath"
 )
 
 var (
 	actions = [7]string{"count", "domains", "tags", "select", "tagsinfo", "tagsbar", "barcount"}
-	port    = ":8913"
+	port    = ":8914"
 	db      *sql.DB
-	// qsArr = []queryStruct{}
-	qsArr = []interface{}{}
-	ddArr = []interface{}{}
+	qsArr   = []interface{}{}
+	ddArr   = []interface{}{}
 )
 
+const tokenStr = "sfe_mip"
+
 func main() {
-
-	openDb()
-
 	router := gin.Default()
 	cwd := autils.GetCwd()
 	router.LoadHTMLGlob(filepath.Join(cwd, "views/*"))
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Server is ok.")
 	})
+
+	openDb()
 
 	router.GET("/api/:type", func(c *gin.Context) {
 		hit := false
@@ -42,19 +41,15 @@ func main() {
 
 		if conditions != "" {
 			err := json.Unmarshal([]byte(conditions), &qsArr)
-			if err != nil {
-				log.Fatal(err)
-			}
+			autils.ErrHadle(err)
 		}
 
 		if drillDowns != "" {
 			err := json.Unmarshal([]byte(drillDowns), &ddArr)
-			if err != nil {
-				log.Fatal(err)
-			}
+			autils.ErrHadle(err)
 		}
 
-		if token != "sfe_mip" {
+		if token != tokenStr {
 			returnError(c, "Wrong token.")
 			return
 		}
@@ -81,9 +76,8 @@ func main() {
 		tags := c.Param("tagName")
 		dataProcess.RenderTagTpl(c, tags, db)
 	})
-
-	router.Run(port)
 	defer db.Close()
+	router.Run(port)
 }
 
 func returnError(c *gin.Context, msg string) {
@@ -115,13 +109,8 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}) {
 func openDb() {
 	mDb, err := sql.Open("mysql", config.DbConfig)
 	db = mDb
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 }

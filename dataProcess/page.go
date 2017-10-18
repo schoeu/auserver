@@ -1,9 +1,9 @@
 package dataProcess
 
 import (
+	"../autils"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,18 +23,13 @@ func getDomain(d string, db *sql.DB, l int) []rs {
 	rsIt := rs{}
 	urlsMap := []rs{}
 
-	date := ""
-	urls := ""
+	var date, urls string
 	rows, err := db.Query("select urls,ana_date from domain where domain = ? order by url_count desc limit ?", d, l)
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for rows.Next() {
 		err := rows.Scan(&urls, &date)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 		rsIt.Urls = strings.Split(urls, ",")
 		rsIt.Date = strings.Split(date, "T")[0]
 
@@ -42,9 +37,7 @@ func getDomain(d string, db *sql.DB, l int) []rs {
 	}
 
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	defer rows.Close()
 
@@ -57,15 +50,11 @@ func getTgs(d string, db *sql.DB, l int) []rs {
 
 	var date, urls string
 	rows, err := db.Query("select urls,ana_date from tags where tag_name = ? order by url_count desc limit ?", d, l)
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for rows.Next() {
 		err := rows.Scan(&urls, &date)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 		rsIt.Urls = strings.Split(urls, ",")
 		rsIt.Date = strings.Split(date, "T")[0]
 
@@ -73,9 +62,7 @@ func getTgs(d string, db *sql.DB, l int) []rs {
 	}
 
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	defer rows.Close()
 

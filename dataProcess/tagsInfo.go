@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -49,7 +48,7 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 
 	t := time.Now()
-	t = t.AddDate(0, 0, -1)
+	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
 
 	var bf bytes.Buffer
@@ -71,15 +70,12 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	sqlStr := bf.String()
 
 	rows, err := db.Query(sqlStr)
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for rows.Next() {
 		err := rows.Scan(&name, &count, &urls, &domainCount)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
+
 		ri.Domain = name
 		ri.Count = count
 		ri.Example = "<a href='http://" + c.Request.Host + tgPrefix + name + "' target='_blank'>查看详情</a>"
@@ -88,9 +84,7 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		rs.Rows = append(rs.Rows, ri)
 	}
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	defer rows.Close()
 

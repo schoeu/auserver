@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"regexp"
 	"sort"
@@ -45,7 +44,7 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	}
 
 	t := time.Now()
-	t = t.AddDate(0, 0, -1)
+	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
 
 	var bf bytes.Buffer
@@ -65,16 +64,12 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	sqlStr := bf.String()
 
 	rows, err := db.Query(sqlStr)
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for rows.Next() {
 		noble := map[string]int{}
 		err := rows.Scan(&name, &count)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 
 		// tag count 处理
 		tArr := strings.Split(count, ",")
@@ -109,9 +104,7 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	}
 
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	defer rows.Close()
 

@@ -4,7 +4,6 @@ import (
 	"../autils"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -46,7 +45,7 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 
 	t := time.Now()
-	t = t.AddDate(0, 0, -1)
+	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
 
 	sDate := autils.AnaSigleDate(q)
@@ -56,15 +55,11 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 
 	rows, err := db.Query("select domain,url_count,urls from domain where ana_date = ? order by url_count desc limit ?", s, maxLenth)
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for rows.Next() {
 		err := rows.Scan(&name, &count, &urls)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 		ri.Domain = name
 		ri.Count = count
 		ri.Example = "<a href='http://" + c.Request.Host + urlPrefix + name + "' target='_blank'>查看详情</a>"
@@ -72,9 +67,7 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		rs.Rows = append(rs.Rows, ri)
 	}
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	defer rows.Close()
 

@@ -4,7 +4,6 @@ import (
 	"../autils"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -33,28 +32,22 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 
 	t := time.Now()
-	t = t.AddDate(0, 0, -1)
+	t = t.AddDate(0, 0, -2)
 	date := autils.GetCurrentData(t)
 	rows, err := db.Query("select tag_name, url_count from tags  where ana_date = ? order by tags.url_count desc", date)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&name, &count)
-		if err != nil {
-			log.Fatal(err)
-		}
+		autils.ErrHadle(err)
 		it.Name = name
 		it.Value = count
 		itArr = append(itArr, it)
 		sum += count
 	}
 	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	otherNum := 0
 	for k, v := range itArr {

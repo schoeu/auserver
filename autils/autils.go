@@ -103,3 +103,9 @@ func AnaDrillDowns(q interface{}) string {
 	}
 	return dateVal
 }
+
+func ErrHadle(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
