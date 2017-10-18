@@ -20,7 +20,6 @@ var (
 	ddArr   = []interface{}{}
 )
 
-const tokenStr = "sfe_mip"
 
 func main() {
 	router := gin.Default()
@@ -49,7 +48,7 @@ func main() {
 			autils.ErrHadle(err)
 		}
 
-		if token != tokenStr {
+		if token != config.TokenStr {
 			returnError(c, "Wrong token.")
 			return
 		}
