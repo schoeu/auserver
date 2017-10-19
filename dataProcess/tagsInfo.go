@@ -42,6 +42,8 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	var name, urls string
 	var count, domainCount int
 
+	customDate := c.Query("date")
+
 	ml := c.Query("max")
 	if ml != "" {
 		tgMax, _ = strconv.Atoi(ml)
@@ -50,6 +52,10 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	t := time.Now()
 	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
+
+	if customDate != "" {
+		yesterday = customDate
+	}
 
 	var bf bytes.Buffer
 	bf.WriteString("select tag_name,url_count,urls,domain_count from tags where ana_date = '")

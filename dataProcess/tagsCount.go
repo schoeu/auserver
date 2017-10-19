@@ -36,8 +36,10 @@ var (
 
 func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	tr := tcRs{}
-	finalRs := make([]tcRs, 200)
+	finalRs := []tcRs{}
 	var name, count string
+
+	customDate := c.Query("date")
 	ml := c.Query("max")
 	if ml != "" {
 		tcMax, _ = strconv.Atoi(ml)
@@ -46,6 +48,10 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	t := time.Now()
 	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
+
+	if customDate != "" {
+		yesterday = customDate
+	}
 
 	var bf bytes.Buffer
 	bf.WriteString("select tag_name,tag_count from tags where ana_date = '")

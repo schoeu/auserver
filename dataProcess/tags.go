@@ -20,12 +20,12 @@ var (
 )
 
 func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
-	itArr := make([]infoType, 100)
+	itArr := []infoType{}
 	it := infoType{}
 
 	var count, sum int
 	var name string
-
+	customDate := c.Query("date")
 	maxLenth := c.Query("max")
 	if maxLenth != "" {
 		max, _ = strconv.Atoi(maxLenth)
@@ -34,7 +34,12 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	t := time.Now()
 	t = t.AddDate(0, 0, -2)
 	date := autils.GetCurrentData(t)
-	rows, err := db.Query("select tag_name, url_count from tags  where ana_date = ? order by tags.url_count desc", date)
+
+	if customDate != "" {
+		date = customDate
+	}
+
+	rows, err := db.Query("select tag_name, url_count from tags where ana_date = ? order by url_count desc", date)
 
 	autils.ErrHadle(err)
 	defer rows.Close()

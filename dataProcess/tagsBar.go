@@ -34,6 +34,7 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	var name, tCount string
 	count := 0
 
+	customDate := c.Query("date")
 	maxLenth := c.Query("max")
 	if maxLenth != "" {
 		barMax, _ = strconv.Atoi(maxLenth)
@@ -42,6 +43,11 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	t := time.Now()
 	t = t.AddDate(0, 0, -2)
 	date := autils.GetCurrentData(t)
+
+	if customDate != "" {
+		date = customDate
+	}
+
 	rows, err := db.Query("select tag_name, url_count, tag_count from tags where ana_date = ? order by tags.url_count desc limit ?", date, barMax)
 	autils.ErrHadle(err)
 

@@ -40,6 +40,7 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	count := 0
 
 	ml := c.Query("max")
+	customDate := c.Query("date")
 	if ml != "" {
 		maxLenth, _ = strconv.Atoi(ml)
 	}
@@ -52,6 +53,10 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	s := yesterday
 	if sDate != "" {
 		s = sDate
+	}
+
+	if customDate != "" {
+		s = customDate
 	}
 
 	rows, err := db.Query("select domain,url_count,urls from domain where ana_date = ? order by url_count desc limit ?", s, maxLenth)
