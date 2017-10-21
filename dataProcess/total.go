@@ -30,26 +30,43 @@ type tData struct {
 	Rows    []tRowsInfo `json:"rows"`
 }
 
-func TotalData(c *gin.Context, db *sql.DB, q interface{}) {
+func TotalData(c *gin.Context, db *sql.DB) {
 	tagCh := make(chan []int)
 	useTagCh := make(chan []string)
+	fullTagCh := make(chan []string)
+
 	go getTagCount(db, tagCh)
 	go getUseTag(db, useTagCh)
+	go getFullTag(db, fullTagCh)
 
-	rs := <-tagCh
+	counts := <-tagCh
 	useTag := <-useTagCh
-	//row := tRowsInfo{}
-	/*row.Core = counts[0]
+	fullTag := <-fullTagCh
+	row := tRowsInfo{}
+
+	row.Core = counts[0]
 	row.Official = counts[1]
 	row.Plat = counts[2]
-	row.Count = counts[0] + counts[1] + counts[2]*/
+	row.Count = counts[0] + counts[1] + counts[2]
 
-	//getUseTag(db)
+	var unuseTags []string
+	for _, v := range fullTag {
+		use := false
+		for _, val := range useTag {
+			if v == val {
+				use = true
+			}
+		}
+		if !use {
+			unuseTags = append(unuseTags, v)
+		}
+	}
+	row.Unuse = len(unuseTags)
+
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
 		"msg":    "ok",
-		"data":   rs,
-		"a": useTag,
+		"data":   row,
 	})
 }
 
@@ -101,4 +118,25 @@ func getTagCount(db *sql.DB, ch chan []int) {
 	defer rows.Close()
 
 	ch <- counts
+}
+
+func getFullTag(db *sql.DB, ch chan []string) {
+	tags := []string{}
+
+	rows, err := db.Query("select name from taglist")
+	autils.ErrHadle(err)
+
+	var name string
+	for rows.Next() {
+		err := rows.Scan(&name)
+		autils.ErrHadle(err)
+		tags = append(tags, name)
+	}
+
+	err = rows.Err()
+	autils.ErrHadle(err)
+
+	defer rows.Close()
+
+	ch <- tags
 }

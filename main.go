@@ -93,7 +93,7 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}) {
 	} else if a == "barcount" {
 		dataProcess.GetBarCountData(c, db, q, d)
 	} else if a == "tagtotal" {
-		dataProcess.TotalData(c, db, q)
+		dataProcess.TotalData(c, db)
 	}
 }
 
