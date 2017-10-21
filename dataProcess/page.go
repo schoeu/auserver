@@ -78,6 +78,7 @@ func RenderDomainTpl(c *gin.Context, domain string, db *sql.DB) {
 		"data":   data,
 		"title":  "MIP站点数据",
 		"domain": domain,
+		"type":   "normal",
 	})
 }
 
@@ -89,6 +90,7 @@ func RenderTagTpl(c *gin.Context, tagName string, db *sql.DB) {
 		"data":   data,
 		"title":  "MIP组件数据",
 		"domain": tagName,
+		"type":   "normal",
 	})
 }
 
@@ -100,4 +102,48 @@ func getLength(c *gin.Context) int {
 	}
 
 	return max
+}
+
+
+func SampleData(c *gin.Context, db *sql.DB, showType string) {
+	var s, title string
+	if showType == "core" {
+		s = "select name from taglist where type = 1"
+		title = "核心组件列表"
+	} else if showType == "offical" {
+		s = "select name from taglist where type = 2"
+		title = "官方组件列表"
+	} else if showType == "plat" {
+		s = "select name from taglist where type = 3"
+		title = "站长组件列表"
+	}
+
+	if s == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"msg":  "类型错误, 支持'core', 'offical', 'plat'",
+		})
+		return
+	}
+
+	var tags []string
+	rows, err := db.Query(s)
+	autils.ErrHadle(err)
+
+	var tag string
+	for rows.Next() {
+		err := rows.Scan(&tag)
+		autils.ErrHadle(err)
+		tags = append(tags, tag)
+	}
+
+	err = rows.Err()
+	autils.ErrHadle(err)
+
+	defer rows.Close()
+
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		"data":  tags,
+		"title": title,
+		"type":  "list",
+	})
 }

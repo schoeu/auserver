@@ -5,36 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{.title}}</title>
     <style type="text/css">
-        table{border-collapse:collapse;margin: 0 auto;width: 100%;}
-        table,th,td{border:1px solid #ccc;padding:5px 10px;}
-        th{background:#ddd}
+        body {
+            margin: 0;
+            font-family: "PingFang SC","Microsoft YaHei","Hiragino Sans GB",STHeiti,"Helvetica Neue",Helvetica,Arial,sans-serif;
+            font-size: 14px;
+        }
+        table{
+            border-collapse:collapse;
+            margin: 0 auto;
+            width: 100%;
+        }
+        table,th,td{
+            padding:5px 10px;
+        }
         th:first-child {
             width: 10%;
         }
-        tr:hover td{background:#fbf8e9}
-        h2 {
+        tr:hover td, thead{
+            background: rgb(241, 241, 241);
+        }
+        .header {
+            background-color: #3a3f51;
+            color: #eaebed;
+            box-shadow: 0 2px 2px rgba(0,0,0,.05), 0 1px 0 rgba(0,0,0,.05);
+            line-height: 50px;
+            height: 50px;
             text-align: center;
+            font-size: 16px;
+        }
+        tbody>tr:nth-of-type(odd) {
+            background-color: #f9f9f9;
         }
     </style>
 </head>
 
 <body>
 <div>
-    <h2>域名 {{.domain}} 数据</h2>
-    {{range $i, $v := .data}}
-        <h3>{{.Date}}</h3>
+    {{if eq .type "normal"}}
+        <div class="header">域名 {{.domain}} 数据</div>
+        {{range $i, $v := .data}}
+            <h3>{{.Date}}</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>链接列表</th>
+                </tr>
+                </thead>
+                {{range $idx, $url := .Urls}}
+                    <tr>
+                        <td>{{$idx}}</td>
+                        <td><a href="{{$url}}" target="_blank">{{$url}}</a></td>
+                    </tr>
+                {{end}}
+            </table>
+        {{end}}
+    {{else if eq .type "list"}}
+        <div class="header">{{.title}}</div>
         <table>
             <thead>
             <tr>
                 <th>序号</th>
-                <th>链接列表</th>
+                <th>组件列表</th>
             </tr>
             </thead>
-            {{range $idx, $url := .Urls}}
-                <tr>
-                    <td>{{$idx}}</td>
-                    <td><a href="{{$url}}" target="_blank">{{$url}}</a></td>
-                </tr>
+            {{range $idx, $val := .data}}
+            <tr>
+                <td>{{$idx}}</td>
+                <td>{{$val}}</td>
+            </tr>
             {{end}}
         </table>
     {{end}}

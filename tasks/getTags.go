@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -39,17 +38,13 @@ func request(url string, ch chan []string, tagType int) {
 	v := []interface{}{}
 	tagCtt := []string{}
 	res, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
-	}
-	body, err := ioutil.ReadAll(res.Body)
+	autils.ErrHadle(err)
 
+	body, err := ioutil.ReadAll(res.Body)
 	json.Unmarshal(body, &v)
 
 	res.Body.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
+	autils.ErrHadle(err)
 
 	for _, v := range v {
 		rs := v.(map[string]interface{})

@@ -11,6 +11,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"net/http"
 	"path/filepath"
+	"regexp"
 )
 
 var (
@@ -62,7 +63,15 @@ func main() {
 
 	router.GET("/list/tags/:tagName", func(c *gin.Context) {
 		tags := c.Param("tagName")
-		dataProcess.RenderTagTpl(c, tags, db)
+
+		match, err := regexp.MatchString("mip-", tags)
+		autils.ErrHadle(err)
+
+		if match {
+			dataProcess.RenderTagTpl(c, tags, db)
+		} else {
+			dataProcess.SampleData(c, db, tags)
+		}
 	})
 
 	defer db.Close()
