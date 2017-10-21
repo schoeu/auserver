@@ -1,11 +1,12 @@
 package tasks
 
 import (
+	"../config"
 	"time"
 	"database/sql"
 )
 
-const taskHour = 3
+const taskHour = config.TaskTime
 
 func Tasks(db *sql.DB) {
 	ticker := time.NewTicker(time.Hour)
