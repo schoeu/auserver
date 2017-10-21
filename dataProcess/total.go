@@ -12,7 +12,7 @@ import (
 type tStruct struct {
 	Name      string `json:"name"`
 	Id        string `json:"id"`
-	//TextAlign string `json:"textAlign"`
+	TextAlign string `json:"textAlign"`
 }
 
 type tRowsInfo struct {
@@ -70,18 +70,23 @@ func TotalData(c *gin.Context, db *sql.DB) {
 	td.Columns = []tStruct{{
 		"组件总量",
 		"count",
-	},{
+		"center",
+	}, {
 		"核心组件数",
 		"core",
-	},{
+		"center",
+	}, {
 		"官方组件数",
 		"official",
-	},{
-		"Plat组件数",
+		"center",
+	}, {
+		"站长组件数",
 		"plat",
-	},{
+		"center",
+	}, {
 		"未使用组件数",
 		"unuse",
+		"center",
 	}}
 
 	c.JSON(http.StatusOK, gin.H{
