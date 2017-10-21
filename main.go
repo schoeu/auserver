@@ -1,10 +1,10 @@
 package main
 
 import (
-	"./tasks"
 	"./autils"
 	"./config"
 	"./dataProcess"
+	"./tasks"
 	"database/sql"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -14,11 +14,9 @@ import (
 )
 
 var (
-	actions = []string{"count", "domains", "tags", "select", "tagsinfo", "tagsbar", "barcount"}
 	port    = ":8914"
 	db      *sql.DB
 )
-
 
 func main() {
 	var qsArr, ddArr []interface{}
@@ -34,7 +32,6 @@ func main() {
 	tasks.Tasks(db)
 
 	router.GET("/api/:type", func(c *gin.Context) {
-		hit := false
 		dataType := c.Param("type")
 		token := c.Query("showx_token")
 		conditions := c.Query("conditions")
@@ -55,17 +52,7 @@ func main() {
 			return
 		}
 
-		for _, v := range actions {
-			if v == dataType {
-				processAct(c, v, qsArr, ddArr)
-				hit = true
-				break
-			}
-		}
-
-		if !hit {
-			returnError(c, "No such operations")
-		}
+		processAct(c, dataType, qsArr, ddArr)
 	})
 
 	router.GET("/list/domain/:domain", func(c *gin.Context) {
@@ -105,6 +92,8 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}) {
 		dataProcess.GetTagsBarData(c, db, q)
 	} else if a == "barcount" {
 		dataProcess.GetBarCountData(c, db, q, d)
+	} else if a == "tagtotal" {
+		dataProcess.TotalData(c, db, q)
 	}
 }
 

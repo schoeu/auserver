@@ -2,8 +2,8 @@ package tasks
 
 import (
 	"../config"
-	"time"
 	"database/sql"
+	"time"
 )
 
 const taskHour = config.TaskTime

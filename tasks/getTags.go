@@ -3,11 +3,11 @@ package tasks
 import (
 	"../autils"
 	"../config"
-	"net/http"
-	"log"
-	"io/ioutil"
 	"database/sql"
 	"encoding/json"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,7 +16,7 @@ import (
 
 var (
 	urls = [3]string{config.MipUrl, config.MipExtUrl, config.MipExtPlatUrl}
-	re = regexp.MustCompile("^mip-[\\w-]+(.js)?$")
+	re   = regexp.MustCompile("^mip-[\\w-]+(.js)?$")
 )
 
 func getTags(db *sql.DB) {
@@ -28,7 +28,7 @@ func getTags(db *sql.DB) {
 	}
 
 	for range urls {
-		v := <- ch
+		v := <-ch
 		rsTags = append(rsTags, v...)
 	}
 
@@ -56,7 +56,7 @@ func request(url string, ch chan []string, tagType int) {
 		name := rs["name"].(string)
 		if re.MatchString(name) {
 			rsName := strings.Replace(name, ".js", "", -1)
-			tagCtt = append(tagCtt, rsName + "@" + strconv.Itoa(tagType + 1))
+			tagCtt = append(tagCtt, rsName+"@"+strconv.Itoa(tagType+1))
 		}
 	}
 	ch <- tagCtt

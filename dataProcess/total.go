@@ -2,10 +2,10 @@ package dataProcess
 
 import (
 	"../autils"
-	"github.com/gin-gonic/gin"
-	"database/sql"
-	"net/http"
 	"bytes"
+	"database/sql"
+	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 )
 
@@ -16,13 +16,13 @@ type tStruct struct {
 }
 
 type tRowsInfo struct {
-	Count          int    `json:"count"`
-	Core			int `json:core`
-	Official			int `json:official`
-	Plat       int `json:"plat"`
-	Unuse       int `json:"unuse"`
-	Example_ishtml bool   `json:"example_ishtml"`
-	DomainCount    int    `json:"domainCount"`
+	Count          int  `json:"count"`
+	Core           int  `json:"core"`
+	Official       int  `json:"official"`
+	Plat           int  `json:"plat"`
+	Unuse          int  `json:"unuse"`
+	Example_ishtml bool `json:"example_ishtml"`
+	DomainCount    int  `json:"domainCount"`
 }
 
 type tData struct {
@@ -30,11 +30,30 @@ type tData struct {
 	Rows    []tRowsInfo `json:"rows"`
 }
 
+func TotalData(c *gin.Context, db *sql.DB, q interface{}) {
+	tagCh := make(chan []int)
+	useTagCh := make(chan []string)
+	go getTagCount(db, tagCh)
+	go getUseTag(db, useTagCh)
 
-func totalData(c *gin.Context, db *sql.DB, q interface{}) {
+	rs := <-tagCh
+	useTag := <-useTagCh
+	//row := tRowsInfo{}
+	/*row.Core = counts[0]
+	row.Official = counts[1]
+	row.Plat = counts[2]
+	row.Count = counts[0] + counts[1] + counts[2]*/
 
-	getTagCount(db)
+	//getUseTag(db)
+	c.JSON(http.StatusOK, gin.H{
+		"status": 0,
+		"msg":    "ok",
+		"data":   rs,
+		"a": useTag,
+	})
+}
 
+func getUseTag(db *sql.DB, ch chan []string) {
 	tagCtt := []string{}
 
 	sqlStr := "select distinct tag_name from tags where date_sub(curdate(), INTERVAL ? DAY) <= date(`ana_date`)"
@@ -53,21 +72,16 @@ func totalData(c *gin.Context, db *sql.DB, q interface{}) {
 
 	defer rows.Close()
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": 0,
-		"msg":    "ok",
-		"data":   "",
-	})
+	ch <- tagCtt
 }
 
-func getTagCount(db *sql.DB) {
+func getTagCount(db *sql.DB, ch chan []int) {
 	counts := []int{}
-	row := tRowsInfo{}
 
 	var buf bytes.Buffer
 	for i := 1; i < 4; i++ {
 		if i != 1 {
-			buf.WriteString(" union all " )
+			buf.WriteString(" union all ")
 		}
 		buf.WriteString(" select count(*) from taglist where type =  " + strconv.Itoa(i))
 	}
@@ -81,14 +95,10 @@ func getTagCount(db *sql.DB) {
 		counts = append(counts, count)
 	}
 
-	row.Core = counts[0]
-	row.Official = counts[1]
-	row.Plat = counts[2]
-	row.Count = counts[0] + counts[1] + counts[2]
-
 	err = rows.Err()
 	autils.ErrHadle(err)
 
 	defer rows.Close()
 
+	ch <- counts
 }
