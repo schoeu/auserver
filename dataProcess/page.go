@@ -116,6 +116,9 @@ func SampleData(c *gin.Context, db *sql.DB, showType string) {
 	} else if showType == "plat" {
 		s = "select name from taglist where type = 3"
 		title = "站长组件列表"
+	} else if showType == "unuse" {
+		unuseTag(c, db)
+		return
 	}
 
 	if s == "" {
@@ -143,6 +146,37 @@ func SampleData(c *gin.Context, db *sql.DB, showType string) {
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"data":  tags,
+		"title": title,
+		"type":  "list",
+	})
+}
+
+func unuseTag(c *gin.Context, db *sql.DB) {
+	useTagCh := make(chan []string)
+	fullTagCh := make(chan []string)
+
+	go getUseTag(db, useTagCh)
+	go getFullTag(db, fullTagCh)
+	useTag := <-useTagCh
+	fullTag := <-fullTagCh
+
+	var unuseTags []string
+	for _, v := range fullTag {
+		use := false
+		for _, val := range useTag {
+			if v == val {
+				use = true
+			}
+		}
+		if !use {
+			unuseTags = append(unuseTags, v)
+		}
+	}
+
+	title := "未使用组件列表"
+
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		"data":  unuseTags,
 		"title": title,
 		"type":  "list",
 	})

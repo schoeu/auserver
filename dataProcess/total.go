@@ -30,7 +30,6 @@ type tData struct {
 }
 
 func TotalData(c *gin.Context, db *sql.DB) {
-
 	td := tData{}
 
 	tagCh := make(chan []int)
