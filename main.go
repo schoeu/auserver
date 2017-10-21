@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./tasks"
 	"./autils"
 	"./config"
 	"./dataProcess"
@@ -13,15 +14,14 @@ import (
 )
 
 var (
-	actions = [7]string{"count", "domains", "tags", "select", "tagsinfo", "tagsbar", "barcount"}
+	actions = []string{"count", "domains", "tags", "select", "tagsinfo", "tagsbar", "barcount"}
 	port    = ":8914"
 	db      *sql.DB
-	qsArr   = []interface{}{}
-	ddArr   = []interface{}{}
 )
 
 
 func main() {
+	var qsArr, ddArr []interface{}
 	router := gin.Default()
 	cwd := autils.GetCwd()
 	router.LoadHTMLGlob(filepath.Join(cwd, "views/*"))
@@ -30,6 +30,8 @@ func main() {
 	})
 
 	openDb()
+
+	tasks.Tasks(db)
 
 	router.GET("/api/:type", func(c *gin.Context) {
 		hit := false
@@ -75,6 +77,7 @@ func main() {
 		tags := c.Param("tagName")
 		dataProcess.RenderTagTpl(c, tags, db)
 	})
+
 	defer db.Close()
 	router.Run(port)
 }

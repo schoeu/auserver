@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
 )
 
 type sltType struct {
@@ -31,13 +30,9 @@ func getTagData(db *sql.DB) []rsType {
 		Value: 3,
 	}}
 
-	t := time.Now()
-	t = t.AddDate(0, 0, -2)
-	yesterday := autils.GetCurrentData(t)
-
 	tags := ""
 	tagType := 0
-	rows, err := db.Query("select distinct tag_name, tag_type from tags where ana_date = ? order by url_count desc", yesterday)
+	rows, err := db.Query("select name, type from taglist")
 	autils.ErrHadle(err)
 
 	for rows.Next() {
