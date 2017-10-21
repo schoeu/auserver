@@ -12,7 +12,7 @@ import (
 type tStruct struct {
 	Name      string `json:"name"`
 	Id        string `json:"id"`
-	TextAlign string `json:"textAlign"`
+	//TextAlign string `json:"textAlign"`
 }
 
 type tRowsInfo struct {
@@ -22,7 +22,6 @@ type tRowsInfo struct {
 	Plat           int  `json:"plat"`
 	Unuse          int  `json:"unuse"`
 	Example_ishtml bool `json:"example_ishtml"`
-	DomainCount    int  `json:"domainCount"`
 }
 
 type tData struct {
@@ -31,6 +30,9 @@ type tData struct {
 }
 
 func TotalData(c *gin.Context, db *sql.DB) {
+
+	td := tData{}
+
 	tagCh := make(chan []int)
 	useTagCh := make(chan []string)
 	fullTagCh := make(chan []string)
@@ -63,10 +65,29 @@ func TotalData(c *gin.Context, db *sql.DB) {
 	}
 	row.Unuse = len(unuseTags)
 
+	td.Rows = append(td.Rows, row)
+
+	td.Columns = []tStruct{{
+		"组件总量",
+		"count",
+	},{
+		"核心组件数",
+		"core",
+	},{
+		"官方组件数",
+		"official",
+	},{
+		"Plat组件数",
+		"plat",
+	},{
+		"未使用组件数",
+		"unuse",
+	}}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
 		"msg":    "ok",
-		"data":   row,
+		"data":   td,
 	})
 }
 
