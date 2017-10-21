@@ -104,18 +104,20 @@ func getLength(c *gin.Context) int {
 	return max
 }
 
-
 func SampleData(c *gin.Context, db *sql.DB, showType string) {
 	var s, title string
 	if showType == "core" {
 		s = "select name from taglist where type = 1"
 		title = "核心组件列表"
-	} else if showType == "offical" {
+	} else if showType == "official" {
 		s = "select name from taglist where type = 2"
 		title = "官方组件列表"
 	} else if showType == "plat" {
 		s = "select name from taglist where type = 3"
 		title = "站长组件列表"
+	} else if showType == "all" {
+		s = "select name from taglist"
+		title = "全部组件列表"
 	} else if showType == "unuse" {
 		unuseTag(c, db)
 		return
@@ -123,7 +125,9 @@ func SampleData(c *gin.Context, db *sql.DB, showType string) {
 
 	if s == "" {
 		c.JSON(http.StatusOK, gin.H{
-			"msg":  "类型错误, 支持'core', 'offical', 'plat'",
+			"msg":    "类型错误, 支持'all', 'core', 'official', 'plat'",
+			"status": 0,
+			"data":   nil,
 		})
 		return
 	}

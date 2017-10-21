@@ -16,12 +16,12 @@ type tStruct struct {
 }
 
 type tRowsInfo struct {
-	Count          int  `json:"count"`
-	Core           int  `json:"core"`
-	Official       int  `json:"official"`
-	Plat           int  `json:"plat"`
-	Unuse          int  `json:"unuse"`
-	Example_ishtml bool `json:"example_ishtml"`
+	Count          string `json:"count"`
+	Core           string `json:"core"`
+	Official       string `json:"official"`
+	Plat           string `json:"plat"`
+	Unuse          string `json:"unuse"`
+	Example_ishtml bool   `json:"example_ishtml"`
 }
 
 type tData struct {
@@ -30,6 +30,10 @@ type tData struct {
 }
 
 func TotalData(c *gin.Context, db *sql.DB) {
+
+	types := []string{"core", "official", "plat", "unuse", "all"}
+	center := "center"
+
 	td := tData{}
 
 	tagCh := make(chan []int)
@@ -45,10 +49,11 @@ func TotalData(c *gin.Context, db *sql.DB) {
 	fullTag := <-fullTagCh
 	row := tRowsInfo{}
 
-	row.Core = counts[0]
-	row.Official = counts[1]
-	row.Plat = counts[2]
-	row.Count = counts[0] + counts[1] + counts[2]
+	row.Core = getHrefStr(c, types[0], counts[0])
+	row.Official = getHrefStr(c, types[1], counts[1])
+	row.Plat = getHrefStr(c, types[2], counts[2])
+	row.Count = getHrefStr(c, types[4], counts[0]+counts[1]+counts[2])
+	row.Example_ishtml = true
 
 	var unuseTags []string
 	for _, v := range fullTag {
@@ -62,30 +67,30 @@ func TotalData(c *gin.Context, db *sql.DB) {
 			unuseTags = append(unuseTags, v)
 		}
 	}
-	row.Unuse = len(unuseTags)
+	row.Unuse = getHrefStr(c, types[3], len(unuseTags))
 
 	td.Rows = append(td.Rows, row)
 
 	td.Columns = []tStruct{{
 		"组件总量",
-		"count",
-		"center",
+		types[4],
+		center,
 	}, {
 		"核心组件数",
-		"core",
-		"center",
+		types[0],
+		center,
 	}, {
 		"官方组件数",
-		"official",
-		"center",
+		types[1],
+		center,
 	}, {
 		"站长组件数",
-		"plat",
-		"center",
+		types[2],
+		center,
 	}, {
 		"未使用组件数",
-		"unuse",
-		"center",
+		types[3],
+		center,
 	}}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -164,4 +169,9 @@ func getFullTag(db *sql.DB, ch chan []string) {
 	defer rows.Close()
 
 	ch <- tags
+}
+
+func getHrefStr(c *gin.Context, t string, num int) string {
+
+	return "<a href='http://" + c.Request.Host + "/list/tags/" + t + "' target='_blank'>" + strconv.Itoa(num) + "</a>"
 }

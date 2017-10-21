@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	port    = ":8915"
-	db      *sql.DB
+	port = ":8915"
+	db   *sql.DB
 )
 
 func main() {
@@ -34,7 +34,13 @@ func main() {
 
 	router.GET("/api/:type", func(c *gin.Context) {
 		dataType := c.Param("type")
+
 		token := c.Query("showx_token")
+		if token != config.TokenStr {
+			returnError(c, "Wrong token.")
+			return
+		}
+
 		conditions := c.Query("conditions")
 		drillDowns := c.Query("drillDowns")
 
@@ -48,11 +54,6 @@ func main() {
 			autils.ErrHadle(err)
 		}
 
-		if token != config.TokenStr {
-			returnError(c, "Wrong token.")
-			return
-		}
-
 		processAct(c, dataType, qsArr, ddArr)
 	})
 
@@ -63,7 +64,6 @@ func main() {
 
 	router.GET("/list/tags/:tagName", func(c *gin.Context) {
 		tags := c.Param("tagName")
-
 		match, err := regexp.MatchString("mip-", tags)
 		autils.ErrHadle(err)
 
