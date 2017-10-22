@@ -5,9 +5,9 @@
 ## API
 
 ### /list/[类别]
-> 各类别列表
+> 各类别及含义
 
-类别及含义
+
 # auserver
 
 > A API server for mip log data.
@@ -16,6 +16,7 @@
 
 ### /list/[类别]
 > 类别及含义
+
 - domain
     - [具体域名]
     
