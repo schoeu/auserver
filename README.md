@@ -44,16 +44,3 @@ a.g：`/list/tags/core` 则会列出所有核心组件名称
 - tagtotal
 
 a.g：`/api/tags` 则会列出组件名及引用数
-
-### /api/[类别]
-> API接口，返回json数据
-
-类别及含义
-- tags
-- tagsinfo
-- count
-- domains
-- select
-- tagsbar
-- barcount
-- tagtotal
