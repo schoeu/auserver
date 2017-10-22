@@ -9,12 +9,14 @@
 
 类别及含义
 - domain
+    - [具体域名]
 - tags
-- all
-- core
-- official
-- plat
-- unuse
+    - [具体组件名]
+    - all
+    - core
+    - official
+    - plat
+    - unuse
 
 ### /api/[类别]
 > API接口，返回json数据
