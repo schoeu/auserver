@@ -16,12 +16,16 @@ type tStruct struct {
 }
 
 type tRowsInfo struct {
-	Count          string `json:"count"`
-	Core           string `json:"core"`
-	Official       string `json:"official"`
-	Plat           string `json:"plat"`
-	Unuse          string `json:"unuse"`
-	Example_ishtml bool   `json:"example_ishtml"`
+	All             string `json:"all"`
+	Core            string `json:"core"`
+	Official        string `json:"official"`
+	Plat            string `json:"plat"`
+	Unuse           string `json:"unuse"`
+	All_ishtml      bool   `json:"all_ishtml"`
+	Core_ishtml     bool   `json:"core_ishtml"`
+	Official_ishtml bool   `json:"official_ishtml"`
+	Plat_ishtml     bool   `json:"plat_ishtml"`
+	Unuse_ishtml    bool   `json:"unuse_ishtml"`
 }
 
 type tData struct {
@@ -52,8 +56,12 @@ func TotalData(c *gin.Context, db *sql.DB) {
 	row.Core = getHrefStr(c, types[0], counts[0])
 	row.Official = getHrefStr(c, types[1], counts[1])
 	row.Plat = getHrefStr(c, types[2], counts[2])
-	row.Count = getHrefStr(c, types[4], counts[0]+counts[1]+counts[2])
-	row.Example_ishtml = true
+	row.All = getHrefStr(c, types[4], counts[0]+counts[1]+counts[2])
+	row.Core_ishtml = true
+	row.All_ishtml = true
+	row.Plat_ishtml = true
+	row.Official_ishtml = true
+	row.Unuse_ishtml = true
 
 	var unuseTags []string
 	for _, v := range fullTag {
