@@ -14,4 +14,5 @@
 .glide/
 
 config
-auserver_*
+auserver8*
+.DS_Store

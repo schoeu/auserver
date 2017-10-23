@@ -25,7 +25,7 @@ type tRowsInfo struct {
 	Core_ishtml     bool   `json:"core_ishtml"`
 	Official_ishtml bool   `json:"official_ishtml"`
 	Plat_ishtml     bool   `json:"plat_ishtml"`
-	Useless_ishtml    bool   `json:"Useless_ishtml"`
+	Useless_ishtml    bool   `json:"useless_ishtml"`
 }
 
 type tData struct {
