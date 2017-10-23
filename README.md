@@ -26,7 +26,7 @@
     - core
     - official
     - plat
-    - unuse
+    - useless
 
 a.g：`/list/tags/core` 则会列出所有核心组件名称
 

@@ -16,7 +16,7 @@
             width: 100%;
         }
         table,th,td{
-            padding:5px 10px;
+            padding:10px;
         }
         th:first-child {
             width: 10%;
@@ -73,6 +73,24 @@
             <tr>
                 <td>{{$idx}}</td>
                 <td>{{$val}}</td>
+            </tr>
+            {{end}}
+        </table>
+    {{else if eq .type "useless"}}
+        <div class="header">{{.title}}</div>
+        <table>
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>组件列表</th>
+                <th>组件类型</th>
+            </tr>
+            </thead>
+            {{range $idx, $val := .data}}
+            <tr>
+                <td>{{$idx}}</td>
+                <td>{{$val.Name}}</td>
+                <th>{{$val.TagType}}</th>
             </tr>
             {{end}}
         </table>

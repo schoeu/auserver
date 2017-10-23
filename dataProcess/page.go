@@ -118,14 +118,14 @@ func SampleData(c *gin.Context, db *sql.DB, showType string) {
 	} else if showType == "all" {
 		s = "select name from taglist"
 		title = "全部组件列表"
-	} else if showType == "unuse" {
-		unuseTag(c, db)
+	} else if showType == "useless" {
+		uselessTag(c, db)
 		return
 	}
 
 	if s == "" {
 		c.JSON(http.StatusOK, gin.H{
-			"msg":    "类型错误, 支持'all', 'core', 'official', 'plat'",
+			"msg":    "类型错误, 支持'all', 'core', 'official', 'plat', 'useless'",
 			"status": 0,
 			"data":   nil,
 		})
@@ -155,33 +155,41 @@ func SampleData(c *gin.Context, db *sql.DB, showType string) {
 	})
 }
 
-func unuseTag(c *gin.Context, db *sql.DB) {
-	useTagCh := make(chan []string)
-	fullTagCh := make(chan []string)
+type trsInfo struct{
+	Name string
+	TagType string
+}
 
+func uselessTag(c *gin.Context, db *sql.DB) {
+	useTagCh := make(chan []string)
+	fullTagCh := make(chan []tTypeStruct)
+	trs := trsInfo{}
+	typeMap := []string {"", "核心组件", "官方组件", "站长组件", "未使用组件"}
 	go getUseTag(db, useTagCh)
 	go getFullTag(db, fullTagCh)
 	useTag := <-useTagCh
 	fullTag := <-fullTagCh
 
-	var unuseTags []string
+	var uselessTags []trsInfo
 	for _, v := range fullTag {
 		use := false
 		for _, val := range useTag {
-			if v == val {
+			if v.Name == val {
 				use = true
 			}
 		}
 		if !use {
-			unuseTags = append(unuseTags, v)
+			trs.Name = v.Name
+			trs.TagType = typeMap[v.TagType]
+			uselessTags = append(uselessTags, trs)
 		}
 	}
 
 	title := "未使用组件列表"
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"data":  unuseTags,
+		"data":  uselessTags,
 		"title": title,
-		"type":  "list",
+		"type":  "useless",
 	})
 }

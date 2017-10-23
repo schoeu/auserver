@@ -20,12 +20,12 @@ type tRowsInfo struct {
 	Core            string `json:"core"`
 	Official        string `json:"official"`
 	Plat            string `json:"plat"`
-	Unuse           string `json:"unuse"`
+	Useless           string `json:"useless"`
 	All_ishtml      bool   `json:"all_ishtml"`
 	Core_ishtml     bool   `json:"core_ishtml"`
 	Official_ishtml bool   `json:"official_ishtml"`
 	Plat_ishtml     bool   `json:"plat_ishtml"`
-	Unuse_ishtml    bool   `json:"unuse_ishtml"`
+	Useless_ishtml    bool   `json:"Useless_ishtml"`
 }
 
 type tData struct {
@@ -33,16 +33,21 @@ type tData struct {
 	Rows    []tRowsInfo `json:"rows"`
 }
 
+type tTypeStruct struct{
+	Name string `json:"name"`
+	TagType int `json:"tagType"`
+}
+
 func TotalData(c *gin.Context, db *sql.DB) {
 
-	types := []string{"core", "official", "plat", "unuse", "all"}
+	types := []string{"core", "official", "plat", "useless", "all"}
 	center := "center"
 
 	td := tData{}
 
 	tagCh := make(chan []int)
 	useTagCh := make(chan []string)
-	fullTagCh := make(chan []string)
+	fullTagCh := make(chan []tTypeStruct)
 
 	go getTagCount(db, tagCh)
 	go getUseTag(db, useTagCh)
@@ -61,21 +66,21 @@ func TotalData(c *gin.Context, db *sql.DB) {
 	row.All_ishtml = true
 	row.Plat_ishtml = true
 	row.Official_ishtml = true
-	row.Unuse_ishtml = true
+	row.Useless_ishtml = true
 
-	var unuseTags []string
+	var uselessTags []string
 	for _, v := range fullTag {
 		use := false
 		for _, val := range useTag {
-			if v == val {
+			if v.Name == val {
 				use = true
 			}
 		}
 		if !use {
-			unuseTags = append(unuseTags, v)
+			uselessTags = append(uselessTags, v.Name)
 		}
 	}
-	row.Unuse = getHrefStr(c, types[3], len(unuseTags))
+	row.Useless = getHrefStr(c, types[3], len(uselessTags))
 
 	td.Rows = append(td.Rows, row)
 
@@ -158,17 +163,21 @@ func getTagCount(db *sql.DB, ch chan []int) {
 	ch <- counts
 }
 
-func getFullTag(db *sql.DB, ch chan []string) {
-	tags := []string{}
+func getFullTag(db *sql.DB, ch chan []tTypeStruct) {
+	tags := []tTypeStruct{}
 
-	rows, err := db.Query("select name from taglist")
+	rows, err := db.Query("select name, type from taglist")
 	autils.ErrHadle(err)
 
 	var name string
+	var tagType int
 	for rows.Next() {
-		err := rows.Scan(&name)
+		err := rows.Scan(&name, &tagType)
 		autils.ErrHadle(err)
-		tags = append(tags, name)
+		t := tTypeStruct{}
+		t.Name = name
+		t.TagType= tagType
+		tags = append(tags, t)
 	}
 
 	err = rows.Err()
