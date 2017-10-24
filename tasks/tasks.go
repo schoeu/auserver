@@ -8,6 +8,7 @@ import (
 
 const taskHour = config.TaskTime
 
+// 定时任务处理
 func Tasks(db *sql.DB) {
 	ticker := time.NewTicker(time.Hour)
 	go func() {

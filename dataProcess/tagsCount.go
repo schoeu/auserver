@@ -34,6 +34,7 @@ var (
 	tcOthers = "others"
 )
 
+// 组件被引用数统计
 func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	tr := tcRs{}
 	finalRs := []tcRs{}

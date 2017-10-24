@@ -27,9 +27,11 @@ type lineStruct struct {
 type tagsMap map[string]dateCtt
 
 const (
+	// 时间戳格式化字符串
 	shortForm = "2006-01-02"
 )
 
+// 组件折线图数据组装
 func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	dateList := dateCtt{}
 

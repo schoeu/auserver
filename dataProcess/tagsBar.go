@@ -28,6 +28,7 @@ var (
 	barLineText = "使用该组件的域名个数"
 )
 
+// 组件柱状图api数据
 func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	bit := barInfoType{}
 	var bs, bsLine barSeries

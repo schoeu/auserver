@@ -104,6 +104,7 @@ func getLength(c *gin.Context) int {
 	return max
 }
 
+// /list/tags/路由时间解析
 func SampleData(c *gin.Context, db *sql.DB, showType string) {
 	var s, title string
 	if showType == "core" {
@@ -155,16 +156,17 @@ func SampleData(c *gin.Context, db *sql.DB, showType string) {
 	})
 }
 
-type trsInfo struct{
-	Name string
+type trsInfo struct {
+	Name    string
 	TagType string
 }
 
+// 未在使用的组件数据
 func uselessTag(c *gin.Context, db *sql.DB) {
 	useTagCh := make(chan []string)
 	fullTagCh := make(chan []tTypeStruct)
 	trs := trsInfo{}
-	typeMap := []string {"", "核心组件", "官方组件", "站长组件", "未使用组件"}
+	typeMap := []string{"", "核心组件", "官方组件", "站长组件", "未使用组件"}
 	go getUseTag(db, useTagCh)
 	go getFullTag(db, fullTagCh)
 	useTag := <-useTagCh

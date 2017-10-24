@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// 获取当前时间字符串
 func GetCurrentData(date time.Time) string {
 	t := date.String()
 	return strings.Split(t, " ")[0]
@@ -26,6 +27,7 @@ func GetCwd() string {
 	return dir
 }
 
+// 解析daterange参数
 func AnaDate(q interface{}) (string, string) {
 	cData := q.([]interface{})
 	sDate := ""
@@ -42,6 +44,7 @@ func AnaDate(q interface{}) (string, string) {
 	return sDate, eDate
 }
 
+// 解析date参数
 func AnaSigleDate(q interface{}) string {
 	cData := q.([]interface{})
 	dateVal := ""
@@ -55,6 +58,7 @@ func AnaSigleDate(q interface{}) string {
 	return dateVal
 }
 
+// 解析select参数
 func AnaSelect(q interface{}) string {
 	cotent := q.([]interface{})
 	dateVal := ""
@@ -69,6 +73,7 @@ func AnaSelect(q interface{}) string {
 	return dateVal
 }
 
+// 解析chained参数
 func AnaChained(q interface{}) string {
 	cotent := q.([]interface{})
 	dateVal := ""
@@ -86,6 +91,7 @@ func AnaChained(q interface{}) string {
 	return dateVal
 }
 
+// 解析drilldowmn参数
 func AnaDrillDowns(q interface{}) string {
 	cotent := q.([]interface{})
 	dateVal := ""
@@ -104,6 +110,7 @@ func AnaDrillDowns(q interface{}) string {
 	return dateVal
 }
 
+// 统一错误处理
 func ErrHadle(err error) {
 	if err != nil {
 		log.Fatal(err)

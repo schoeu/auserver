@@ -20,12 +20,12 @@ type tRowsInfo struct {
 	Core            string `json:"core"`
 	Official        string `json:"official"`
 	Plat            string `json:"plat"`
-	Useless           string `json:"useless"`
+	Useless         string `json:"useless"`
 	All_ishtml      bool   `json:"all_ishtml"`
 	Core_ishtml     bool   `json:"core_ishtml"`
 	Official_ishtml bool   `json:"official_ishtml"`
 	Plat_ishtml     bool   `json:"plat_ishtml"`
-	Useless_ishtml    bool   `json:"useless_ishtml"`
+	Useless_ishtml  bool   `json:"useless_ishtml"`
 }
 
 type tData struct {
@@ -33,11 +33,12 @@ type tData struct {
 	Rows    []tRowsInfo `json:"rows"`
 }
 
-type tTypeStruct struct{
-	Name string `json:"name"`
-	TagType int `json:"tagType"`
+type tTypeStruct struct {
+	Name    string `json:"name"`
+	TagType int    `json:"tagType"`
 }
 
+// 组件概况数据处理
 func TotalData(c *gin.Context, db *sql.DB) {
 
 	types := []string{"core", "official", "plat", "useless", "all"}
@@ -176,7 +177,7 @@ func getFullTag(db *sql.DB, ch chan []tTypeStruct) {
 		autils.ErrHadle(err)
 		t := tTypeStruct{}
 		t.Name = name
-		t.TagType= tagType
+		t.TagType = tagType
 		tags = append(tags, t)
 	}
 

@@ -34,6 +34,7 @@ const tgPrefix = "/list/tags/"
 
 var tgMax = 100
 
+// 组件信息页面数据处理
 func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	ri := tgRowsInfo{}

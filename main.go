@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	port = ":8912"
+	port = ":8913"
 	db   *sql.DB
 )
 
@@ -32,7 +32,9 @@ func main() {
 
 	tasks.Tasks(db)
 
-	router.GET("/api/:type", func(c *gin.Context) {
+	apiRouters := router.Group("/api")
+
+	apiRouters.GET("/:type", func(c *gin.Context) {
 		dataType := c.Param("type")
 
 		token := c.Query("showx_token")
@@ -57,12 +59,14 @@ func main() {
 		processAct(c, dataType, qsArr, ddArr)
 	})
 
-	router.GET("/list/domain/:domain", func(c *gin.Context) {
+	listRouters := router.Group("/list")
+
+	listRouters.GET("/domain/:domain", func(c *gin.Context) {
 		domain := c.Param("domain")
 		dataProcess.RenderDomainTpl(c, domain, db)
 	})
 
-	router.GET("/list/tags/:tagName", func(c *gin.Context) {
+	listRouters.GET("/tags/:tagName", func(c *gin.Context) {
 		tags := c.Param("tagName")
 		match, err := regexp.MatchString("mip-", tags)
 		autils.ErrHadle(err)
@@ -78,6 +82,7 @@ func main() {
 	router.Run(port)
 }
 
+// 错误json信息统一处理
 func returnError(c *gin.Context, msg string) {
 	c.JSON(200, gin.H{
 		"status": "1",
@@ -86,6 +91,7 @@ func returnError(c *gin.Context, msg string) {
 	})
 }
 
+// 路径控制
 func processAct(c *gin.Context, a string, q []interface{}, d []interface{}) {
 	if a == "tags" {
 		dataProcess.QueryTagsUrl(c, db, q)

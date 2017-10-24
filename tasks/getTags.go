@@ -18,6 +18,7 @@ var (
 	re   = regexp.MustCompile("^mip-[\\w-]+(.js)?$")
 )
 
+// 获取组件信息
 func getTags(db *sql.DB) {
 	ch := make(chan []string, 3)
 	rsTags := []string{}
@@ -34,6 +35,7 @@ func getTags(db *sql.DB) {
 	storeTags(db, &rsTags)
 }
 
+// 请求&获取组件数据
 func request(url string, ch chan []string, tagType int) {
 	v := []interface{}{}
 	tagCtt := []string{}
@@ -57,6 +59,7 @@ func request(url string, ch chan []string, tagType int) {
 	ch <- tagCtt
 }
 
+// 分析组件信息写入数据库
 func storeTags(db *sql.DB, data *[]string) {
 	sqlArr := []string{}
 	n := autils.GetCurrentData(time.Now())

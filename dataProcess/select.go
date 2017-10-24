@@ -18,6 +18,7 @@ type rsType struct {
 	Value    int       `json:"value"`
 }
 
+// 组件分类
 func getTagData(db *sql.DB) []rsType {
 	rseArr := []rsType{{
 		Name:  "核心组件",
@@ -57,6 +58,7 @@ func getTagData(db *sql.DB) []rsType {
 	return rseArr
 }
 
+// 返回全部组件数据
 func GetSelect(c *gin.Context, db *sql.DB) {
 	data := getTagData(db)
 	c.JSON(http.StatusOK, gin.H{

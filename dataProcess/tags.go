@@ -19,6 +19,7 @@ var (
 	others = "others"
 )
 
+// 组件查询
 func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	itArr := []infoType{}
 	it := infoType{}

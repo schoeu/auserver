@@ -31,6 +31,7 @@ const urlPrefix = "/list/domain/"
 
 var maxLenth = 100
 
+// 域名数据组装
 func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	ri := rowsInfo{}
