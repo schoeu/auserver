@@ -15,12 +15,15 @@ import (
 )
 
 var (
-	port = ":8913"
+	port = ":8910"
 	db   *sql.DB
 )
 
 func main() {
 	var qsArr, ddArr []interface{}
+
+	//gin.SetMode(gin.ReleaseMode)
+
 	router := gin.Default()
 	cwd := autils.GetCwd()
 	router.LoadHTMLGlob(filepath.Join(cwd, "views/*"))

@@ -39,7 +39,7 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	vas, _ := time.Parse(shortForm, sDate)
 	vae, _ := time.Parse(shortForm, eDate)
 
-	if vae.After(vas) {
+	if sDate != "" && eDate != "" && vae.After(vas) {
 		t := vas
 		s := autils.GetCurrentData(t)
 		e := eDate
@@ -53,8 +53,17 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 			}
 		}
 	} else {
+		var maxLenth int
+		ml := c.Query("max")
+		if ml != "" {
+			maxLenth, _ = strconv.Atoi(ml)
+		}
+
+		if maxLenth == 0 {
+			maxLenth = 7
+		}
 		now := time.Now()
-		for i := -1; i < 1; i++ {
+		for i := -maxLenth; i < 0; i++ {
 			t := now.AddDate(0, 0, i)
 			dateList = append(dateList, autils.GetCurrentData(t))
 		}
