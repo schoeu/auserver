@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -16,10 +15,10 @@ type barInfoType struct {
 }
 
 type barSeries struct {
-	Name       string `json:"name"`
-	Data       []int  `json:"data"`
-	Type       string `json:"type"`
-	YAxisIndex int    `json:"yAxisIndex"`
+	Name       string   `json:"name"`
+	Data       []string `json:"data"`
+	Type       string   `json:"type"`
+	YAxisIndex int      `json:"yAxisIndex"`
 }
 
 var (
@@ -32,8 +31,7 @@ var (
 func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	bit := barInfoType{}
 	var bs, bsLine barSeries
-	var name, tCount string
-	count := 0
+	var name, dCount, count string
 
 	customDate := c.Query("date")
 	maxLenth := c.Query("max")
@@ -49,20 +47,19 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 		date = customDate
 	}
 
-	rows, err := db.Query("select tag_name, url_count, tag_count from tags where ana_date = ? order by tags.url_count desc limit ?", date, barMax)
+	rows, err := db.Query("select tag_name, url_count, domain_count from tags where ana_date = ? order by url_count desc limit ?", date, barMax)
 	autils.ErrHadle(err)
 
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&name, &count, &tCount)
+		err := rows.Scan(&name, &count, &dCount)
 		autils.ErrHadle(err)
 
 		bit.Categories = append(bit.Categories, name)
 		bs.Data = append(bs.Data, count)
 
 		// tag count 处理
-		tArr := strings.Split(tCount, ",")
-		bsLine.Data = append(bsLine.Data, len(tArr))
+		bsLine.Data = append(bsLine.Data, dCount)
 	}
 
 	bs.Name = barText
