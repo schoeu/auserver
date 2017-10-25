@@ -24,7 +24,7 @@ func getDomain(d string, db *sql.DB, l int) []rs {
 	urlsMap := []rs{}
 
 	var date, urls string
-	rows, err := db.Query("select urls,ana_date from domain where domain = ? order by url_count desc limit ?", d, l)
+	rows, err := db.Query("select urls, ana_date from domain where domain = ? and date_sub(curdate(), INTERVAL ? DAY) <= date(`ana_date`) order by ana_date desc", d, l)
 	autils.ErrHadle(err)
 
 	for rows.Next() {
@@ -49,7 +49,7 @@ func getTgs(d string, db *sql.DB, l int) []rs {
 	urlsMap := []rs{}
 
 	var date, urls string
-	rows, err := db.Query("select urls,ana_date from tags where tag_name = ? order by url_count desc limit ?", d, l)
+	rows, err := db.Query("select urls, ana_date from tags where tag_name = ? and date_sub(curdate(), INTERVAL ? DAY) <= date(`ana_date`) order by ana_date desc", d, l)
 	autils.ErrHadle(err)
 
 	for rows.Next() {
@@ -71,7 +71,6 @@ func getTgs(d string, db *sql.DB, l int) []rs {
 
 func RenderDomainTpl(c *gin.Context, domain string, db *sql.DB) {
 	l := getLength(c)
-
 	data := getDomain(domain, db, l)
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
@@ -95,7 +94,7 @@ func RenderTagTpl(c *gin.Context, tagName string, db *sql.DB) {
 }
 
 func getLength(c *gin.Context) int {
-	max := 50
+	max := 10
 	maxLenth := c.Query("max")
 	if maxLenth != "" {
 		max, _ = strconv.Atoi(maxLenth)
