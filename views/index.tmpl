@@ -48,7 +48,7 @@
     {{if eq .type "normal"}}
         <div class="header">域名 {{.domain}} 数据</div>
         {{range $i, $v := .data}}
-            <h3>{{.Date}}</h3>
+            <h3 id="{{.Date}}">{{.Date}}</h3>
             <table>
                 <thead>
                 <tr>
@@ -74,7 +74,7 @@
             </tr>
             </thead>
             {{range $idx, $val := .data}}
-            <tr>
+            <tr id="{{$val}}">
                 <td>{{$idx}}</td>
                 <td>{{$val}}</td>
             </tr>
@@ -91,7 +91,7 @@
             </tr>
             </thead>
             {{range $idx, $val := .data}}
-            <tr>
+            <tr id="{{$val.Name}}">
                 <td>{{$idx}}</td>
                 <td>{{$val.Name}}</td>
                 <th>{{$val.TagType}}</th>
