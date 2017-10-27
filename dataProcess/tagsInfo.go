@@ -41,7 +41,7 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	rs := tgDataStruct{}
 
 	var name, urls string
-	var count, domainCount int
+	var count, domainCount sql.NullInt64
 
 	customDate := c.Query("date")
 
@@ -84,10 +84,10 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		autils.ErrHadle(err)
 
 		ri.Domain = name
-		ri.Count = count
+		ri.Count = int(count.Int64)
 		ri.Example = "<a href='http://" + c.Request.Host + tgPrefix + name + "' target='_blank'>查看详情</a>"
 		ri.Example_ishtml = true
-		ri.DomainCount = domainCount
+		ri.DomainCount = int(domainCount.Int64)
 		rs.Rows = append(rs.Rows, ri)
 	}
 	err = rows.Err()

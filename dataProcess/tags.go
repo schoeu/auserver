@@ -24,7 +24,7 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	itArr := []infoType{}
 	it := infoType{}
 
-	var count, sum int
+	var sum int
 	var name string
 	customDate := c.Query("date")
 	maxLenth := c.Query("max")
@@ -44,13 +44,15 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	autils.ErrHadle(err)
 	defer rows.Close()
+	var count sql.NullInt64
 	for rows.Next() {
 		err := rows.Scan(&name, &count)
 		autils.ErrHadle(err)
 		it.Name = name
-		it.Value = count
+		c := int(count.Int64)
+		it.Value = c
 		itArr = append(itArr, it)
-		sum += count
+		sum += c
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
