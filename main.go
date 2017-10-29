@@ -30,12 +30,15 @@ func main() {
 
 	db := openDb()
 
-	tasks.Tasks(db)
+	// tasks.Tasks(db)
 
+	// API路由处理
 	apiRouters(router, db)
 
+	// 列表路由处理
 	listRouters(router, db)
 
+	// 定时任务路由处理
 	taskRouters(router, db)
 
 	defer db.Close()
@@ -100,7 +103,7 @@ func taskRouters(router *gin.Engine, db *sql.DB) {
 	taskRouter := router.Group("/tasks")
 
 	taskRouter.GET("/tagslist", func(c *gin.Context) {
-		tasks.UpdateTags(db)
+		tasks.UpdateTags(c, db)
 	})
 
 }

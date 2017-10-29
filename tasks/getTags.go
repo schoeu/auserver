@@ -5,6 +5,7 @@ import (
 	"../config"
 	"database/sql"
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -19,7 +20,7 @@ var (
 )
 
 // 获取组件信息
-func UpdateTags(db *sql.DB) {
+func UpdateTags(c *gin.Context, db *sql.DB) {
 	ch := make(chan []string, 3)
 	rsTags := []string{}
 
@@ -32,7 +33,7 @@ func UpdateTags(db *sql.DB) {
 		rsTags = append(rsTags, v...)
 	}
 
-	storeTags(db, &rsTags)
+	storeTags(c, db, &rsTags)
 }
 
 // 请求&获取组件数据
@@ -60,7 +61,7 @@ func request(url string, ch chan []string, tagType int) {
 }
 
 // 分析组件信息写入数据库
-func storeTags(db *sql.DB, data *[]string) {
+func storeTags(c *gin.Context, db *sql.DB, data *[]string) {
 	sqlArr := []string{}
 	n := autils.GetCurrentData(time.Now())
 	for _, v := range *data {
@@ -75,5 +76,18 @@ func storeTags(db *sql.DB, data *[]string) {
 
 	sqlStr := "INSERT INTO taglist (name, type, ana_date) VALUES " + strings.Join(sqlArr, ",")
 	_, err = db.Exec(sqlStr)
-	autils.ErrHadle(err)
+
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status": 0,
+			"msg":    "ok",
+			"data":   "update tags list successfully.",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status": 1,
+			"msg":    "error",
+			"data":   err,
+		})
+	}
 }
