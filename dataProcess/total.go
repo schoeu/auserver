@@ -94,7 +94,7 @@ func TotalData(c *gin.Context, db *sql.DB) {
 		types[0],
 		center,
 	}, {
-		"官方组件数",
+		"扩展组件数",
 		types[1],
 		center,
 	}, {
