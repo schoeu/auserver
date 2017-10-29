@@ -16,7 +16,7 @@ func Tasks(db *sql.DB) {
 			t := time.Now()
 			Hour := t.Hour()
 			if Hour == taskHour {
-				getTags(db)
+				UpdateTags(db)
 			}
 		}
 	}()

@@ -111,7 +111,7 @@ func SampleData(c *gin.Context, db *sql.DB, showType string) {
 		title = "核心组件列表"
 	} else if showType == "official" {
 		s = "select name from taglist where type = 2"
-		title = "官方组件列表"
+		title = "扩展组件列表"
 	} else if showType == "plat" {
 		s = "select name from taglist where type = 3"
 		title = "站长组件列表"

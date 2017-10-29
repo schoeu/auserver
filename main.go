@@ -16,12 +16,9 @@ import (
 
 var (
 	port = ":8910"
-	db   *sql.DB
 )
 
 func main() {
-	var qsArr, ddArr []interface{}
-
 	//gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
@@ -31,13 +28,26 @@ func main() {
 		c.String(http.StatusOK, "Server is ok.")
 	})
 
-	openDb()
+	db := openDb()
 
 	tasks.Tasks(db)
 
-	apiRouters := router.Group("/api")
+	apiRouters(router, db)
 
-	apiRouters.GET("/:type", func(c *gin.Context) {
+	listRouters(router, db)
+
+	taskRouters(router, db)
+
+	defer db.Close()
+	router.Run(port)
+}
+
+// API路由处理
+func apiRouters(router *gin.Engine, db *sql.DB) {
+	var qsArr, ddArr []interface{}
+	apis := router.Group("/api")
+
+	apis.GET("/:type", func(c *gin.Context) {
 		dataType := c.Param("type")
 
 		token := c.Query("showx_token")
@@ -59,9 +69,12 @@ func main() {
 			autils.ErrHadle(err)
 		}
 
-		processAct(c, dataType, qsArr, ddArr)
+		processAct(c, dataType, qsArr, ddArr, db)
 	})
+}
 
+// 列表路由处理
+func listRouters(router *gin.Engine, db *sql.DB) {
 	listRouters := router.Group("/list")
 
 	listRouters.GET("/domain/:domain", func(c *gin.Context) {
@@ -80,9 +93,16 @@ func main() {
 			dataProcess.SampleData(c, db, tags)
 		}
 	})
+}
 
-	defer db.Close()
-	router.Run(port)
+// 任务路由处理
+func taskRouters(router *gin.Engine, db *sql.DB) {
+	taskRouter := router.Group("/tasks")
+
+	taskRouter.GET("/tagslist", func(c *gin.Context) {
+		tasks.UpdateTags(db)
+	})
+
 }
 
 // 错误json信息统一处理
@@ -95,7 +115,7 @@ func returnError(c *gin.Context, msg string) {
 }
 
 // 路径控制
-func processAct(c *gin.Context, a string, q []interface{}, d []interface{}) {
+func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB) {
 	if a == "tags" {
 		dataProcess.QueryTagsUrl(c, db, q)
 	} else if a == "tagsinfo" {
@@ -115,11 +135,12 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}) {
 	}
 }
 
-func openDb() {
+func openDb() *sql.DB{
 	mDb, err := sql.Open("mysql", config.DbConfig)
-	db = mDb
 	autils.ErrHadle(err)
 
-	err = db.Ping()
+	err = mDb.Ping()
 	autils.ErrHadle(err)
+
+	return mDb
 }

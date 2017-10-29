@@ -19,7 +19,7 @@ var (
 )
 
 // 获取组件信息
-func getTags(db *sql.DB) {
+func UpdateTags(db *sql.DB) {
 	ch := make(chan []string, 3)
 	rsTags := []string{}
 
