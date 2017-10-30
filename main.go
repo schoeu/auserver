@@ -101,8 +101,12 @@ func listRouters(router *gin.Engine, db *sql.DB) {
 // 任务路由处理
 func taskRouters(router *gin.Engine, db *sql.DB) {
 	taskRouter := router.Group("/tasks")
-
 	taskRouter.GET("/tagslist", func(c *gin.Context) {
+		token := c.Query("showx_token")
+		if token != config.TokenStr {
+			returnError(c, "Wrong token.")
+			return
+		}
 		tasks.UpdateTags(c, db)
 	})
 
