@@ -74,6 +74,7 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
+	ct := 0
 	for rows.Next() {
 		noble := map[string]int{}
 		err := rows.Scan(&name, &count)
@@ -96,20 +97,21 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 		}
 		sort.Sort(sort.Reverse(p))
 
-		c := 0
+
 		for k, v := range p {
 			if k >= tcMax {
-				c += v.Value
+				ct += v.Value
 			} else {
 				tr.Name = v.Key
 				tr.Value = v.Value
 				finalRs = append(finalRs, tr)
 			}
 		}
-		tr.Name = tcOthers
-		tr.Value = c
-		finalRs = append(finalRs, tr)
 	}
+
+	tr.Name = tcOthers
+	tr.Value = ct
+	finalRs = append(finalRs, tr)
 
 	err = rows.Err()
 	autils.ErrHadle(err)
