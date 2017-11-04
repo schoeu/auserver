@@ -60,7 +60,8 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	var bf bytes.Buffer
 	bf.WriteString("select tag_name,url_count,urls,domain_count from tags where ana_date = '")
-	bf.WriteString(yesterday)
+	valiDate := autils.CheckSql(yesterday)
+	bf.WriteString(valiDate)
 	bf.WriteString("' ")
 
 	tn := autils.AnaChained(q)
@@ -68,7 +69,8 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	if match && err == nil {
 		bf.WriteString(" and tag_name = '")
-		bf.WriteString(tn)
+		valStr := autils.CheckSql(tn)
+		bf.WriteString(valStr)
 		bf.WriteString("' ")
 	}
 	bf.WriteString("order by domain_count desc limit ")

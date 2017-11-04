@@ -88,11 +88,14 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 			bf.WriteString(" union all ")
 		}
 		bf.WriteString(" select * from (select tag_name,url_count,ana_date from tags where ana_date = '")
-		bf.WriteString(v)
+
+		valStr := autils.CheckSql(v)
+		bf.WriteString(valStr)
 
 		if match && err == nil {
 			bf.WriteString("' and tag_name='")
-			bf.WriteString(tn)
+			valStr := autils.CheckSql(v)
+			bf.WriteString(valStr)
 		}
 
 		bf.WriteString("' order by url_count desc limit 10) as ")

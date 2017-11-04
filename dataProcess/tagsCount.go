@@ -56,7 +56,8 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 
 	var bf bytes.Buffer
 	bf.WriteString("select tag_name,tag_count from tags where ana_date = '")
-	bf.WriteString(yesterday)
+	valStr := autils.CheckSql(yesterday)
+	bf.WriteString(valStr)
 	bf.WriteString("' ")
 
 	tn := autils.AnaDrillDowns(d)
