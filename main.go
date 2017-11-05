@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	port = ":8910"
+	port = ":8911"
 )
 
 func main() {
@@ -142,7 +142,7 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *
 	}
 }
 
-func openDb() *sql.DB{
+func openDb() *sql.DB {
 	mDb, err := sql.Open("mysql", config.DbConfig)
 	autils.ErrHadle(err)
 

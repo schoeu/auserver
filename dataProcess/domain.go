@@ -2,6 +2,7 @@ package dataProcess
 
 import (
 	"../autils"
+	"../config"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -33,6 +34,7 @@ var maxLenth = 100
 
 // 域名数据组装
 func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
+	partCount := config.PartCount
 
 	ri := rowsInfo{}
 	rs := rsDataStruct{}
@@ -67,7 +69,7 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		err := rows.Scan(&name, &count, &urls)
 		autils.ErrHadle(err)
 		ri.Domain = name
-		ri.Count = count
+		ri.Count = count * partCount
 		ri.Example = "<a href='http://" + c.Request.Host + urlPrefix + name + "' target='_blank'>查看详情</a>"
 		ri.Example_ishtml = true
 		rs.Rows = append(rs.Rows, ri)

@@ -2,6 +2,7 @@ package dataProcess
 
 import (
 	"../autils"
+	"../config"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -29,9 +30,11 @@ var (
 
 // 组件柱状图api数据
 func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
+	partCount := config.PartCount
 	bit := barInfoType{}
 	var bs, bsLine barSeries
-	var name, dCount, count string
+	var name, dCount string
+	var count int
 
 	customDate := c.Query("date")
 	maxLenth := c.Query("max")
@@ -56,7 +59,7 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 		autils.ErrHadle(err)
 
 		bit.Categories = append(bit.Categories, name)
-		bs.Data = append(bs.Data, count)
+		bs.Data = append(bs.Data, strconv.Itoa(count*partCount))
 
 		// tag count 处理
 		bsLine.Data = append(bsLine.Data, dCount)

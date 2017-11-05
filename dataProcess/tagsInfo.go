@@ -2,6 +2,7 @@ package dataProcess
 
 import (
 	"../autils"
+	"../config"
 	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
@@ -36,7 +37,7 @@ var tgMax = 100
 
 // 组件信息页面数据处理
 func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
-
+	partCount := config.PartCount
 	ri := tgRowsInfo{}
 	rs := tgDataStruct{}
 
@@ -86,7 +87,7 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		autils.ErrHadle(err)
 
 		ri.Domain = name
-		ri.Count = int(count.Int64)
+		ri.Count = int(count.Int64) * partCount
 		ri.Example = "<a href='http://" + c.Request.Host + tgPrefix + name + "' target='_blank'>查看详情</a>"
 		ri.Example_ishtml = true
 		ri.DomainCount = int(domainCount.Int64)

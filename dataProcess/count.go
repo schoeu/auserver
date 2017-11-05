@@ -2,6 +2,7 @@ package dataProcess
 
 import (
 	"../autils"
+	"../config"
 	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
@@ -14,9 +15,11 @@ import (
 
 type dateCtt []string
 
+type dateCttNum []int
+
 type seriesType struct {
-	Name string  `json:"name"`
-	Data dateCtt `json:"data"`
+	Name string     `json:"name"`
+	Data dateCttNum `json:"data"`
 }
 
 type lineStruct struct {
@@ -31,6 +34,7 @@ const (
 
 // 组件折线图数据组装
 func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
+	partCount := config.PartCount
 	limit := "10"
 	dateList := dateCtt{}
 
@@ -105,8 +109,15 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		autils.ErrHadle(err)
 
 		countInfoArr := strings.Split(countStr, ",")
+		var sumCount []int
+		for _, v := range countInfoArr {
+			r, err := strconv.Atoi(v)
+			autils.ErrHadle(err)
+			sumCount = append(sumCount, r*partCount)
+		}
+
 		st.Name = name
-		st.Data = countInfoArr
+		st.Data = sumCount
 		ls.Series = append(ls.Series, st)
 	}
 	err = rows.Err()
