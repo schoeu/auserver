@@ -97,7 +97,6 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 		}
 		sort.Sort(sort.Reverse(p))
 
-
 		for k, v := range p {
 			if k >= tcMax {
 				ct += v.Value

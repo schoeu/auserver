@@ -5,10 +5,10 @@ import (
 	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"math/rand"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -24,8 +24,6 @@ type lineStruct struct {
 	Series     []seriesType `json:"series"`
 }
 
-type tagsMap map[string]dateCtt
-
 const (
 	// 时间戳格式化字符串
 	shortForm = "2006-01-02"
@@ -33,6 +31,7 @@ const (
 
 // 组件折线图数据组装
 func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
+	limit := "10"
 	dateList := dateCtt{}
 
 	sDate, eDate := autils.AnaDate(q)
@@ -54,7 +53,7 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		}
 	} else {
 		var maxLenth int
-		ml := c.Query("max")
+		ml := c.Query("daterange")
 		if ml != "" {
 			maxLenth, _ = strconv.Atoi(ml)
 		}
@@ -72,64 +71,47 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	ls := lineStruct{}
 	st := seriesType{}
 
-	/*
-		select * from (select tag_name,url_count,ana_date from tags where ana_date = '2017-09-28' order by url_count desc limit 10) as a
-		union all
-		select * from (select tag_name,url_count,ana_date from tags where ana_date = '2017-09-27'  order by url_count desc limit 10) as b
-	*/
+	m := c.Query("max")
+	if m == "" {
+		m = limit
+	}
 
 	var name, dbDate string
 	tn := autils.AnaChained(q)
 	match, err := regexp.MatchString("mip-", tn)
 
 	var bf bytes.Buffer
-	for i, v := range dateList {
-		if i != 0 {
-			bf.WriteString(" union all ")
-		}
-		bf.WriteString(" select * from (select tag_name,url_count,ana_date from tags where ana_date = '")
 
-		valStr := autils.CheckSql(v)
-		bf.WriteString(valStr)
+	// rows, err := db.Query(sqlStr)
 
-		if match && err == nil {
-			bf.WriteString("' and tag_name='")
-			valStr := autils.CheckSql(v)
-			bf.WriteString(valStr)
-		}
-
-		bf.WriteString("' order by url_count desc limit 10) as ")
-		bf.WriteString("a")
-		bf.WriteString(strconv.Itoa(rand.Intn(10000000)))
-
+	bf.WriteString("select tag_name,group_concat(url_count) as tag_count, url_count from tags where date(`ana_date`) >= ? and  date(`ana_date`) <= ? ")
+	if match && err == nil {
+		bf.WriteString(" and tag_name='")
+		tnVal := autils.CheckSql(tn)
+		bf.WriteString(tnVal)
+		bf.WriteString("' ")
 	}
-	bf.WriteString(" order by ana_date")
+	bf.WriteString(" group by tag_name order by url_count desc limit ?")
 
 	sqlStr := bf.String()
 
-	rows, err := db.Query(sqlStr)
+	rows, err := db.Query(sqlStr, dateList[0], dateList[len(dateList)-1], m)
+
 	autils.ErrHadle(err)
 
-	tm := tagsMap{}
+	countStr := ""
 	for rows.Next() {
-		var ct sql.NullInt64
-		err := rows.Scan(&name, &ct, &dbDate)
+		err := rows.Scan(&name, &countStr, &dbDate)
 		autils.ErrHadle(err)
 
-		if ct.Valid {
-			tm[name] = append(tm[name], strconv.Itoa(int(ct.Int64)))
-		} else {
-			tm[name] = append(tm[name], strconv.Itoa(0))
-		}
+		countInfoArr := strings.Split(countStr, ",")
+		st.Name = name
+		st.Data = countInfoArr
+		ls.Series = append(ls.Series, st)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 
-	for k, v := range tm {
-		st.Name = k
-		st.Data = v
-		ls.Series = append(ls.Series, st)
-	}
 	ls.Categories = dateList
 
 	defer rows.Close()
