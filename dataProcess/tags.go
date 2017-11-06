@@ -1,8 +1,8 @@
 package dataProcess
 
 import (
-	"../config"
 	"../autils"
+	"../config"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"

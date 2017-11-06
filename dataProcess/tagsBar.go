@@ -3,9 +3,11 @@ package dataProcess
 import (
 	"../autils"
 	"../config"
+	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -50,7 +52,20 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 		date = customDate
 	}
 
-	rows, err := db.Query("select tag_name, url_count, domain_count from tags where ana_date = ? order by url_count desc limit ?", date, barMax)
+	tn := autils.AnaChained(q)
+	match, err := regexp.MatchString("mip-", tn)
+
+	var bf bytes.Buffer
+	bf.WriteString("select tag_name, url_count, domain_count from tags where ana_date = ?")
+	if match && err == nil {
+		bf.WriteString(" and tag_name='")
+		tnVal := autils.CheckSql(tn)
+		bf.WriteString(tnVal)
+		bf.WriteString("' ")
+	}
+	bf.WriteString(" order by url_count desc limit ?")
+
+	rows, err := db.Query(bf.String(), date, barMax)
 	autils.ErrHadle(err)
 
 	defer rows.Close()

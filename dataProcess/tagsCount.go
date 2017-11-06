@@ -1,8 +1,8 @@
 package dataProcess
 
 import (
-	"../config"
 	"../autils"
+	"../config"
 	"bytes"
 	"database/sql"
 	"github.com/gin-gonic/gin"
