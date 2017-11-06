@@ -1,6 +1,7 @@
 package dataProcess
 
 import (
+	"../config"
 	"../autils"
 	"database/sql"
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,8 @@ var (
 
 // 组件查询
 func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
+	partCount := config.PartCount
+
 	itArr := []infoType{}
 	it := infoType{}
 
@@ -50,9 +53,10 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		autils.ErrHadle(err)
 		it.Name = name
 		c := int(count.Int64)
-		it.Value = c
+		sumCount := c * partCount
+		it.Value = sumCount
 		itArr = append(itArr, it)
-		sum += c
+		sum += sumCount
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)

@@ -1,6 +1,7 @@
 package dataProcess
 
 import (
+	"../config"
 	"../autils"
 	"bytes"
 	"database/sql"
@@ -36,6 +37,8 @@ var (
 
 // 组件被引用数统计
 func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
+	partCount := config.PartCount
+
 	tr := tcRs{}
 	finalRs := []tcRs{}
 	var name, count string
@@ -99,10 +102,10 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 
 		for k, v := range p {
 			if k >= tcMax {
-				ct += v.Value
+				ct += v.Value * partCount
 			} else {
 				tr.Name = v.Key
-				tr.Value = v.Value
+				tr.Value = v.Value * partCount
 				finalRs = append(finalRs, tr)
 			}
 		}
