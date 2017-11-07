@@ -27,20 +27,22 @@ func main() {
 		c.String(http.StatusOK, "Server is ok.")
 	})
 
-	db := openDb()
+	logDb := autils.OpenDb(config.LogDb)
+	flowDb := autils.OpenDb(config.FlowDb)
 
 	// API路由处理
-	apiRouters(router, db)
+	apiRouters(router, logDb, flowDb)
 
 	// 列表路由处理
-	listRouters(router, db)
+	listRouters(router, logDb)
 
-	defer db.Close()
+	defer logDb.Close()
+	defer flowDb.Close()
 	router.Run(port)
 }
 
 // API路由处理
-func apiRouters(router *gin.Engine, db *sql.DB) {
+func apiRouters(router *gin.Engine, db *sql.DB, flowDb *sql.DB) {
 	var qsArr, ddArr []interface{}
 	apis := router.Group("/api")
 
@@ -66,7 +68,7 @@ func apiRouters(router *gin.Engine, db *sql.DB) {
 			autils.ErrHadle(err)
 		}
 
-		processAct(c, dataType, qsArr, ddArr, db)
+		processAct(c, dataType, qsArr, ddArr, db, flowDb)
 	})
 }
 
@@ -102,7 +104,7 @@ func returnError(c *gin.Context, msg string) {
 }
 
 // 路径控制
-func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB) {
+func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB, flowDb *sql.DB) {
 	if a == "tags" {
 		dataProcess.QueryTagsUrl(c, db, q)
 	} else if a == "tagsinfo" {
@@ -119,15 +121,7 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *
 		dataProcess.GetBarCountData(c, db, q, d)
 	} else if a == "tagtotal" {
 		dataProcess.TotalData(c, db)
+	} else if a == "allflow" {
+		dataProcess.GetAllFlow(c, flowDb, q)
 	}
-}
-
-func openDb() *sql.DB {
-	mDb, err := sql.Open("mysql", config.DbConfig)
-	autils.ErrHadle(err)
-
-	err = mDb.Ping()
-	autils.ErrHadle(err)
-
-	return mDb
 }

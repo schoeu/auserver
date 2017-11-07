@@ -1,6 +1,7 @@
 package autils
 
 import (
+	"database/sql"
 	"log"
 	"os"
 	"regexp"
@@ -127,4 +128,14 @@ func CheckSql(s string) string {
 		return ""
 	}
 	return s
+}
+
+// 创建数据库链接
+func OpenDb(dbStr string) *sql.DB {
+	db, err := sql.Open("mysql", dbStr)
+	ErrHadle(err)
+
+	err = db.Ping()
+	ErrHadle(err)
+	return db
 }
