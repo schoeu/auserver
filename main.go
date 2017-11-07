@@ -4,7 +4,6 @@ import (
 	"./autils"
 	"./config"
 	"./dataProcess"
-	"./tasks"
 	"database/sql"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -30,16 +29,11 @@ func main() {
 
 	db := openDb()
 
-	// tasks.Tasks(db)
-
 	// API路由处理
 	apiRouters(router, db)
 
 	// 列表路由处理
 	listRouters(router, db)
-
-	// 定时任务路由处理
-	taskRouters(router, db)
 
 	defer db.Close()
 	router.Run(port)
@@ -96,20 +90,6 @@ func listRouters(router *gin.Engine, db *sql.DB) {
 			dataProcess.SampleData(c, db, tags)
 		}
 	})
-}
-
-// 任务路由处理
-func taskRouters(router *gin.Engine, db *sql.DB) {
-	taskRouter := router.Group("/tasks")
-	taskRouter.GET("/tagslist", func(c *gin.Context) {
-		token := c.Query("showx_token")
-		if token != config.TokenStr {
-			returnError(c, "Wrong token.")
-			return
-		}
-		tasks.UpdateTags(c, db)
-	})
-
 }
 
 // 错误json信息统一处理
