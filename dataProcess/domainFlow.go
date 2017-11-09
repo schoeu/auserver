@@ -9,23 +9,19 @@ import (
 	"time"
 )
 
-type fseriesType struct {
-	Name string   `json:"name"`
-	Data []string `json:"data"`
-}
-
-type flineStruct struct {
-	Categories []string      `json:"categories"`
-	Series     []fseriesType `json:"series"`
-}
-
 // 获取流量信息
-func GetAllFlow(c *gin.Context, db *sql.DB, q interface{}) {
+func GetDFlow(c *gin.Context, db *sql.DB, q interface{}) {
 	sDate, eDate := autils.AnaDate(q)
 	vas, _ := time.Parse(shortForm, sDate)
 	vae, _ := time.Parse(shortForm, eDate)
 
 	dateList := dateCtt{}
+
+	dn := autils.AnaSelect(q)
+
+	if dn == "" {
+		dn = "120ask.com"
+	}
 
 	if sDate != "" && eDate != "" && vae.After(vas) {
 		t := vas
@@ -60,9 +56,9 @@ func GetAllFlow(c *gin.Context, db *sql.DB, q interface{}) {
 
 	ls := flineStruct{}
 
-	var click, display, rate string
+	var click, display, tClick, tDisplay, cRate, fRate string
 
-	rows, err := db.Query("select click, display, cd_rate from all_flow where date >= ? and  date <= ?", dateList[0], dateList[len(dateList)-1])
+	rows, err := db.Query("select click, display, total_click, total_display, cd_rate, flow_rate from site_flow where date >= ? and  date <= ? and domain = ?", dateList[0], dateList[len(dateList)-1], dn)
 
 	autils.ErrHadle(err)
 
@@ -75,18 +71,30 @@ func GetAllFlow(c *gin.Context, db *sql.DB, q interface{}) {
 	rts := fseriesType{}
 	rts.Name = "MIP点展比"
 
+	ct := fseriesType{}
+	ct.Name = "点击总流量"
+
+	dt := fseriesType{}
+	dt.Name = "展现总次数"
+
+	fr := fseriesType{}
+	fr.Name = "MIP流量占比"
+
 	for rows.Next() {
-		err := rows.Scan(&click, &display, &rate)
+		err := rows.Scan(&click, &display, &tClick, &tDisplay, &cRate, &fRate)
 		autils.ErrHadle(err)
 
 		lcs.Data = append(lcs.Data, click)
 		dps.Data = append(dps.Data, display)
-		rts.Data = append(rts.Data, rate)
+		rts.Data = append(rts.Data, cRate)
+		ct.Data = append(ct.Data, tClick)
+		dt.Data = append(dt.Data, tDisplay)
+		fr.Data = append(fr.Data, fRate)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 
-	ls.Series = append(ls.Series, lcs, dps, rts)
+	ls.Series = append(ls.Series, lcs, dps, rts, ct, dt, fr)
 	ls.Categories = dateList
 
 	defer rows.Close()

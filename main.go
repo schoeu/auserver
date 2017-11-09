@@ -123,5 +123,9 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *
 		dataProcess.TotalData(c, db)
 	} else if a == "allflow" {
 		dataProcess.GetAllFlow(c, flowDb, q)
+	} else if a == "getdomains" {
+		dataProcess.GetDomains(c, flowDb)
+	} else if a == "getsiteflow" {
+		dataProcess.GetDFlow(c, flowDb, q)
 	}
 }
