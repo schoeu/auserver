@@ -13,10 +13,6 @@ import (
 	"regexp"
 )
 
-var (
-	port = ":8910"
-)
-
 func main() {
 	//gin.SetMode(gin.ReleaseMode)
 
@@ -38,7 +34,7 @@ func main() {
 
 	defer logDb.Close()
 	defer flowDb.Close()
-	router.Run(port)
+	router.Run(config.Port)
 }
 
 // API路由处理
