@@ -88,15 +88,15 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 		di.Domian = domain
 		di.TotalPv = totalPv
 		di.Pv = pv
-		di.PvRate = pvRate + "%"
+		di.PvRate = clearZero(pvRate) + "%"
 		/*di.EstPvRate = estPv
 		di.EstPvRate = estPvRate
 		di.PatternEstPv = patternEstPv*/
 		di.Urls = urls
 		di.RecordUrl = recordUrl
-		di.RecordRate = recordRate + "%"
+		di.RecordRate = clearZero(recordRate) + "%"
 		di.PassUrl = passUrl
-		di.PassRate = passRate + "%"
+		di.PassRate = clearZero(passRate) + "%"
 		di.RelativeUrl = relativeUrl
 		di.EffectUrl = effectUrl
 		di.EffectPv = effectPv
@@ -116,4 +116,11 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 		"msg":    "ok",
 		"data":   td,
 	})
+}
+
+func clearZero(s string) string {
+	if strings.Contains(s, "0.0") {
+		return "0"
+	}
+	return s
 }
