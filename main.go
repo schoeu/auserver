@@ -123,5 +123,7 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *
 		dataProcess.GetDomains(c, flowDb)
 	} else if a == "getsiteflow" {
 		dataProcess.GetDFlow(c, flowDb, q)
+	} else if a == "sitedetail" {
+		dataProcess.GetSDetail(c, flowDb, q)
 	}
 }
