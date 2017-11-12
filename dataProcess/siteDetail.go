@@ -41,6 +41,7 @@ type detailData struct {
 
 // 获取流量信息
 func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
+
 	ts := tStruct{}
 	td := detailData{}
 
@@ -67,6 +68,9 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 
 	dn := autils.AnaSelect(q)
 
+	ch := make(chan int)
+	go getTotal(db, startDate, ch)
+
 	var domain, totalPv, pv, pvRate, /*estPv, estPvRate, patternEstPv,*/
 		urls, recordUrl, recordRate, passUrl, passRate, relativeUrl, effectUrl, effectPv, ineffectUrl, ineffectPv, shieldUrl string
 
@@ -91,7 +95,6 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 
 	autils.ErrHadle(err)
 	di := detailInfo{}
-	count := 0
 	for rows.Next() {
 		err := rows.Scan(&domain, &totalPv, &pv, &pvRate, /*&estPv, &estPvRate, &patternEstPv,*/
 			&urls, &recordUrl, &recordRate, &passUrl, &passRate, &relativeUrl, &effectUrl, &effectPv, &ineffectUrl, &ineffectPv, &shieldUrl)
@@ -115,10 +118,10 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 		di.IneffectPv = ineffectPv
 		di.ShieldUrl = shieldUrl
 		td.Rows = append(td.Rows, di)
-		count++
 
 	}
 
+	count := <-ch
 	td.Total = count
 
 	err = rows.Err()
@@ -138,4 +141,22 @@ func clearZero(s string) string {
 		return "0"
 	}
 	return s
+}
+
+func getTotal(db *sql.DB, date string, ch chan int) {
+	rows, err := db.Query("select count(*) from site_detail where date = '" + date + "'")
+
+	autils.ErrHadle(err)
+	count := 0
+	for rows.Next() {
+		err := rows.Scan(&count)
+		autils.ErrHadle(err)
+	}
+
+	err = rows.Err()
+	autils.ErrHadle(err)
+
+	defer rows.Close()
+
+	ch <- count
 }
