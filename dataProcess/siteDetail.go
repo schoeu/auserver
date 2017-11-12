@@ -121,7 +121,7 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 
 	}
 
-	count := <-ch
+	count := <- ch
 	td.Total = count
 
 	err = rows.Err()
@@ -143,8 +143,8 @@ func clearZero(s string) string {
 	return s
 }
 
-func getTotal(db *sql.DB, date string, ch chan int) {
-	rows, err := db.Query("select count(*) from site_detail where date = '" + date + "'")
+func getTotal(db *sql.DB, date string, ch chan int) chan int {
+	rows, err := db.Query("select count(*) from site_detail where date = '" + date+ "'")
 
 	autils.ErrHadle(err)
 	count := 0
