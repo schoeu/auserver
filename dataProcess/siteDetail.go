@@ -39,21 +39,30 @@ type detailData struct {
 	Total   int          `json:"total"`
 }
 
+var dateTotal = map[string]int{}
+
 // 获取流量信息
 func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 
 	ts := tStruct{}
 	td := detailData{}
 
-	start := c.Query("start")
-	limit := c.Query("limit")
+	var FieldIdMap = map[string]string{}
 
 	for i, v := range config.Titles {
 		ts.Name = v
 		ts.TextAlign = "center"
 		ts.Id = config.Ids[i]
 		td.Columns = append(td.Columns, ts)
+
+		FieldIdMap[config.Ids[i]] = config.Field[i]
 	}
+
+	start := c.Query("start")
+	limit := c.Query("limit")
+	sortKey := c.Query("sortKey")
+	sortType := c.Query("sortType")
+	field := FieldIdMap[sortKey]
 
 	var startDate string
 	theDay := time.Now().AddDate(0, 0, -3)
@@ -69,7 +78,9 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 	dn := autils.AnaSelect(q)
 
 	ch := make(chan int)
-	go getTotal(db, startDate, ch)
+	if dateTotal[startDate] == 0 {
+		go getTotal(db, startDate, ch)
+	}
 
 	var domain, totalPv, pv, pvRate, /*estPv, estPvRate, patternEstPv,*/
 		urls, recordUrl, recordRate, passUrl, passRate, relativeUrl, effectUrl, effectPv, ineffectUrl, ineffectPv, shieldUrl string
@@ -81,6 +92,17 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 	if strings.Contains(dn, ".") {
 		sqlStr.WriteString("and domain = '" + dn + "' ")
 	}
+
+	field = autils.CheckSql(field)
+	if field != "" {
+		sqlStr.WriteString(" order by '" + field + "' ")
+	}
+
+	sortType = autils.CheckSql(sortType)
+	if field != "" && sortType != "" {
+		sqlStr.WriteString(" " + sortType + "")
+	}
+
 	_, err := strconv.Atoi(limit)
 	if err == nil {
 		sqlStr.WriteString(" limit " + limit + "")
@@ -91,7 +113,8 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 		sqlStr.WriteString(" offset " + start + "")
 	}
 
-	rows, err := db.Query(sqlStr.String())
+	sqls := sqlStr.String()
+	rows, err := db.Query(sqls)
 
 	autils.ErrHadle(err)
 	di := detailInfo{}
@@ -121,7 +144,14 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 
 	}
 
-	count := <- ch
+	count := 0
+	if dateTotal[startDate] == 0 {
+		count = <-ch
+		dateTotal[startDate] = count
+	} else {
+		count = dateTotal[startDate]
+	}
+
 	td.Total = count
 
 	err = rows.Err()
@@ -143,8 +173,8 @@ func clearZero(s string) string {
 	return s
 }
 
-func getTotal(db *sql.DB, date string, ch chan int){
-	rows, err := db.Query("select count(id) from site_detail where date = '" + date+ "'")
+func getTotal(db *sql.DB, date string, ch chan int) {
+	rows, err := db.Query("select count(id) from site_detail where date = '" + date + "'")
 
 	autils.ErrHadle(err)
 	count := 0

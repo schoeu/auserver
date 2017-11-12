@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
 	cwd := autils.GetCwd()
@@ -125,6 +125,8 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *
 	} else if a == "getsiteflow" {
 		dataProcess.GetDFlow(c, flowDb, q)
 	} else if a == "sitedetail" {
+		// test
+		//dataProcess.GetSDetail(c, flowDb, q)
 		dataProcess.GetSDetail(c, pqDB, q)
 	}
 }
