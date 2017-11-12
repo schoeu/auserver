@@ -43,6 +43,9 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 	ts := tStruct{}
 	td := detailData{}
 
+	start := c.Query("start")
+	limit := c.Query("limit")
+
 	for i, v := range config.Titles {
 		ts.Name = v
 		ts.TextAlign = "center"
@@ -66,18 +69,22 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 	var domain, totalPv, pv, pvRate, /*estPv, estPvRate, patternEstPv,*/
 		urls, recordUrl, recordRate, passUrl, passRate, relativeUrl, effectUrl, effectPv, ineffectUrl, ineffectPv, shieldUrl string
 
-	max := c.Query("max")
 	var sqlStr bytes.Buffer
 	sqlStr.WriteString("select " + strings.Join(config.Field, ",") + " from site_detail where date = ? ")
 	if strings.Contains(dn, ".") {
 		sqlStr.WriteString("and domain = '" + dn + "' ")
 	}
-	_, err := strconv.Atoi(max)
+	_, err := strconv.Atoi(limit)
 	if err == nil {
-		sqlStr.WriteString(" limit " + max + "")
+		sqlStr.WriteString(" limit " + limit + "")
 	}
 
-	rows, err := db.Query(sqlStr.String(), startDate)
+	_, err = strconv.Atoi(start)
+	if err == nil {
+		sqlStr.WriteString(" offset " + start + "")
+	}
+
+	rows, err := db.Query(sqlStr.String(), "'"+startDate+"'")
 
 	autils.ErrHadle(err)
 	di := detailInfo{}
