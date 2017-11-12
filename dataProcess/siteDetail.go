@@ -94,14 +94,16 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 
 	field = autils.CheckSql(field)
-	if field != "" {
-		sqlStr.WriteString(" order by " + field + " ")
+	if field == "" {
+		field = "total_pv"
 	}
+	sqlStr.WriteString(" order by " + field + " ")
 
 	sortType = autils.CheckSql(sortType)
-	if field != "" && sortType != "" {
-		sqlStr.WriteString(" " + sortType + "")
+	if sortType == "" {
+		sortType = "desc"
 	}
+	sqlStr.WriteString(" " + sortType + "")
 
 	_, err := strconv.Atoi(limit)
 	if err == nil {
