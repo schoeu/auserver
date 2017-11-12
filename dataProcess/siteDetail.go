@@ -95,7 +95,7 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 
 	field = autils.CheckSql(field)
 	if field != "" {
-		sqlStr.WriteString(" order by '" + field + "' ")
+		sqlStr.WriteString(" order by " + field + " ")
 	}
 
 	sortType = autils.CheckSql(sortType)
