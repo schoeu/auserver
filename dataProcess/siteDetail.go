@@ -36,6 +36,7 @@ type detailInfo struct {
 type detailData struct {
 	Columns []tStruct    `json:"columns"`
 	Rows    []detailInfo `json:"rows"`
+	Total   int          `json:"total"`
 }
 
 // 获取流量信息
@@ -70,7 +71,9 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 		urls, recordUrl, recordRate, passUrl, passRate, relativeUrl, effectUrl, effectPv, ineffectUrl, ineffectPv, shieldUrl string
 
 	var sqlStr bytes.Buffer
-	sqlStr.WriteString("select " + strings.Join(config.Field, ",") + " from site_detail where date = ? ")
+	sqlStr.WriteString("select " + strings.Join(config.Field, ",") + " from site_detail where date = '")
+	sqlStr.WriteString(startDate)
+	sqlStr.WriteString("'")
 	if strings.Contains(dn, ".") {
 		sqlStr.WriteString("and domain = '" + dn + "' ")
 	}
@@ -84,10 +87,11 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 		sqlStr.WriteString(" offset " + start + "")
 	}
 
-	rows, err := db.Query(sqlStr.String(), "'"+startDate+"'")
+	rows, err := db.Query(sqlStr.String())
 
 	autils.ErrHadle(err)
 	di := detailInfo{}
+	count := 0
 	for rows.Next() {
 		err := rows.Scan(&domain, &totalPv, &pv, &pvRate, /*&estPv, &estPvRate, &patternEstPv,*/
 			&urls, &recordUrl, &recordRate, &passUrl, &passRate, &relativeUrl, &effectUrl, &effectPv, &ineffectUrl, &ineffectPv, &shieldUrl)
@@ -111,8 +115,12 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 		di.IneffectPv = ineffectPv
 		di.ShieldUrl = shieldUrl
 		td.Rows = append(td.Rows, di)
+		count++
 
 	}
+
+	td.Total = count
+
 	err = rows.Err()
 	autils.ErrHadle(err)
 
