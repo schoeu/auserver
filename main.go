@@ -7,14 +7,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 	"net/http"
 	"path/filepath"
 	"regexp"
 )
 
 func main() {
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
 	cwd := autils.GetCwd()
@@ -23,22 +22,24 @@ func main() {
 		c.String(http.StatusOK, "Server is ok.")
 	})
 
-	logDb := autils.OpenDb(config.LogDb)
-	flowDb := autils.OpenDb(config.FlowDb)
+	logDb := autils.OpenDb("mysql", config.LogDb)
+	flowDb := autils.OpenDb("mysql", config.FlowDb)
+	pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
 
 	// API路由处理
-	apiRouters(router, logDb, flowDb)
+	apiRouters(router, logDb, flowDb, pqDB)
 
 	// 列表路由处理
 	listRouters(router, logDb)
 
 	defer logDb.Close()
 	defer flowDb.Close()
+	defer pqDB.Close()
 	router.Run(config.Port)
 }
 
 // API路由处理
-func apiRouters(router *gin.Engine, db *sql.DB, flowDb *sql.DB) {
+func apiRouters(router *gin.Engine, db *sql.DB, flowDb *sql.DB, pqDB *sql.DB) {
 	var qsArr, ddArr []interface{}
 	apis := router.Group("/api")
 
@@ -64,7 +65,7 @@ func apiRouters(router *gin.Engine, db *sql.DB, flowDb *sql.DB) {
 			autils.ErrHadle(err)
 		}
 
-		processAct(c, dataType, qsArr, ddArr, db, flowDb)
+		processAct(c, dataType, qsArr, ddArr, db, flowDb, pqDB)
 	})
 }
 
@@ -100,7 +101,7 @@ func returnError(c *gin.Context, msg string) {
 }
 
 // 路径控制
-func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB, flowDb *sql.DB) {
+func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB, flowDb *sql.DB, pqDB *sql.DB) {
 	if a == "tags" {
 		dataProcess.QueryTagsUrl(c, db, q)
 	} else if a == "tagsinfo" {
@@ -124,6 +125,6 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *
 	} else if a == "getsiteflow" {
 		dataProcess.GetDFlow(c, flowDb, q)
 	} else if a == "sitedetail" {
-		dataProcess.GetSDetail(c, flowDb, q)
+		dataProcess.GetSDetail(c, pqDB, q)
 	}
 }
