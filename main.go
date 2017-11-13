@@ -24,13 +24,13 @@ func main() {
 
 	logDb := autils.OpenDb("mysql", config.LogDb)
 	logDb.SetMaxOpenConns(100)
-	logDb.SetMaxIdleConns(10)
+	logDb.SetMaxIdleConns(20)
 	flowDb := autils.OpenDb("mysql", config.FlowDb)
 	flowDb.SetMaxOpenConns(100)
-	flowDb.SetMaxIdleConns(10)
+	flowDb.SetMaxIdleConns(20)
 	pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
 	pqDB.SetMaxOpenConns(100)
-	pqDB.SetMaxIdleConns(10)
+	pqDB.SetMaxIdleConns(20)
 
 	// API路由处理
 	apiRouters(router, logDb, flowDb, pqDB)
