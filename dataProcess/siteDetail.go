@@ -155,6 +155,9 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 	}
 
 	td.Total = count
+	if strings.Contains(dn, ".") {
+		td.Total = 1
+	}
 
 	err = rows.Err()
 	autils.ErrHadle(err)
