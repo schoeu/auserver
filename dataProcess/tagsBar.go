@@ -56,7 +56,7 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	match, err := regexp.MatchString("mip-", tn)
 
 	var bf bytes.Buffer
-	bf.WriteString("select tag_name, url_count, domain_count from tags where ana_date = '"+ date)
+	bf.WriteString("select tag_name, url_count, domain_count from tags where ana_date = '" + date)
 	if match && err == nil {
 		bf.WriteString("' and tag_name='")
 		tnVal := autils.CheckSql(tn)

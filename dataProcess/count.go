@@ -88,18 +88,16 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	// rows, err := db.Query(sqlStr)
 
-	bf.WriteString("select tag_name,group_concat(url_count) as tag_count, url_count from tags where date(`ana_date`) >= ? and  date(`ana_date`) <= ? ")
+	bf.WriteString("select tag_name,group_concat(url_count) as tag_count, url_count from tags where ana_date >= '" + dateList[0] + "' and  ana_date <= '" + dateList[len(dateList)-1] + "' ")
 	if match && err == nil {
 		bf.WriteString(" and tag_name='")
 		tnVal := autils.CheckSql(tn)
 		bf.WriteString(tnVal)
 		bf.WriteString("' ")
 	}
-	bf.WriteString(" group by tag_name order by url_count desc limit ?")
+	bf.WriteString(" group by tag_name order by url_count desc limit " + m)
 
-	sqlStr := bf.String()
-
-	rows, err := db.Query(sqlStr, dateList[0], dateList[len(dateList)-1], m)
+	rows, err := db.Query(bf.String())
 
 	autils.ErrHadle(err)
 
