@@ -121,7 +121,7 @@ func getUseTag(db *sql.DB, ch chan []string) {
 	farAway := autils.GetCurrentData(now.AddDate(0, -1, 0))
 	day := autils.GetCurrentData(now)
 
-	rows, err := db.Query("select distinct tag_name from tags where ana_date >= '"+farAway+"' and ana_date < '"+day+"'")
+	rows, err := db.Query("select distinct tag_name from tags where ana_date >= '" + farAway + "' and ana_date < '" + day + "'")
 	autils.ErrHadle(err)
 
 	var name string

@@ -22,26 +22,22 @@ func main() {
 		c.String(http.StatusOK, "Server is ok.")
 	})
 
-	logDb := autils.OpenDb("mysql", config.LogDb)
-	logDb.SetMaxOpenConns(100)
-	logDb.SetMaxIdleConns(20)
 	pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
 	pqDB.SetMaxOpenConns(100)
 	pqDB.SetMaxIdleConns(20)
 
 	// API路由处理
-	apiRouters(router, logDb, pqDB)
+	apiRouters(router, pqDB)
 
 	// 列表路由处理
-	listRouters(router, logDb)
+	listRouters(router, pqDB)
 
-	defer logDb.Close()
 	defer pqDB.Close()
 	router.Run(config.Port)
 }
 
 // API路由处理
-func apiRouters(router *gin.Engine, db *sql.DB, pqDB *sql.DB) {
+func apiRouters(router *gin.Engine, pqDB *sql.DB) {
 	var qsArr, ddArr []interface{}
 	apis := router.Group("/api")
 
@@ -67,7 +63,7 @@ func apiRouters(router *gin.Engine, db *sql.DB, pqDB *sql.DB) {
 			autils.ErrHadle(err)
 		}
 
-		processAct(c, dataType, qsArr, ddArr, db, pqDB)
+		processAct(c, dataType, qsArr, ddArr, pqDB)
 	})
 }
 
@@ -103,23 +99,23 @@ func returnError(c *gin.Context, msg string) {
 }
 
 // 路径控制
-func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB, pqDB *sql.DB) {
+func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, pqDB *sql.DB) {
 	if a == "tags" {
-		dataProcess.QueryTagsUrl(c, db, q)
+		dataProcess.QueryTagsUrl(c, pqDB, q)
 	} else if a == "tagsinfo" {
-		dataProcess.TgUrl(c, db, q)
+		dataProcess.TgUrl(c, pqDB, q)
 	} else if a == "count" {
-		dataProcess.LineTagsUrl(c, db, q)
+		dataProcess.LineTagsUrl(c, pqDB, q)
 	} else if a == "domains" {
-		dataProcess.DomainUrl(c, db, q)
+		dataProcess.DomainUrl(c, pqDB, q)
 	} else if a == "select" {
-		dataProcess.GetSelect(c, db)
+		dataProcess.GetSelect(c, pqDB)
 	} else if a == "tagsbar" {
-		dataProcess.GetTagsBarData(c, db, q)
+		dataProcess.GetTagsBarData(c, pqDB, q)
 	} else if a == "barcount" {
-		dataProcess.GetBarCountData(c, db, q, d)
+		dataProcess.GetBarCountData(c, pqDB, q, d)
 	} else if a == "tagtotal" {
-		dataProcess.TotalData(c, db)
+		dataProcess.TotalData(c, pqDB)
 	} else if a == "allflow" {
 		dataProcess.GetAllFlow(c, pqDB, q)
 	} else if a == "getdomains" {
