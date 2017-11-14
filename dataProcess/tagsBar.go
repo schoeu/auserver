@@ -56,16 +56,15 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 	match, err := regexp.MatchString("mip-", tn)
 
 	var bf bytes.Buffer
-	bf.WriteString("select tag_name, url_count, domain_count from tags where ana_date = ?")
+	bf.WriteString("select tag_name, url_count, domain_count from tags where ana_date = '"+ date)
 	if match && err == nil {
-		bf.WriteString(" and tag_name='")
+		bf.WriteString("' and tag_name='")
 		tnVal := autils.CheckSql(tn)
 		bf.WriteString(tnVal)
-		bf.WriteString("' ")
 	}
-	bf.WriteString(" order by url_count desc limit ?")
+	bf.WriteString("' order by url_count desc limit " + strconv.Itoa(barMax))
 
-	rows, err := db.Query(bf.String(), date, barMax)
+	rows, err := db.Query(bf.String())
 	autils.ErrHadle(err)
 
 	defer rows.Close()
