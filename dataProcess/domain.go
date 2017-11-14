@@ -62,7 +62,7 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		s = customDate
 	}
 
-	rows, err := db.Query("select domain,url_count,urls from domain where ana_date = ? order by url_count desc limit ?", s, maxLenth)
+	rows, err := db.Query("select domain,url_count,urls from domain where ana_date = '" + s + "' order by url_count desc limit " + strconv.Itoa(maxLenth))
 	autils.ErrHadle(err)
 
 	for rows.Next() {
