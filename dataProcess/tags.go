@@ -43,7 +43,7 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		date = customDate
 	}
 
-	rows, err := db.Query("select tag_name, url_count from tags where ana_date = ? order by url_count desc", date)
+	rows, err := db.Query("select tag_name, url_count from tags where ana_date = '" + date + "' order by url_count desc")
 
 	autils.ErrHadle(err)
 	defer rows.Close()

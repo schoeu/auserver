@@ -86,7 +86,16 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 
 	var bf bytes.Buffer
 
-	// rows, err := db.Query(sqlStr)
+	/**
+	-- 自定义gruop_concat数据库函数
+
+	CREATE AGGREGATE group_concat(anyelement)
+	(
+		sfunc = array_append, -- 每行的操作函数，将本行append到数组里
+		stype = anyarray,     -- 聚集后返回数组类型
+		initcond = '{}'       -- 初始化空数组
+	);
+	*/
 
 	bf.WriteString("select tag_name,array_to_string(group_concat(url_count),',') as tag_count from tags where ana_date >= '" + dateList[0] + "' and  ana_date <= '" + dateList[len(dateList)-1] + "' ")
 	if match && err == nil {
