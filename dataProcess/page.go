@@ -25,7 +25,10 @@ func getDomain(d string, db *sql.DB, l int) []rs {
 	urlsMap := []rs{}
 
 	var date, urls string
-	rows, err := db.Query("select urls, ana_date from domain where domain = ? and date_sub(curdate(), INTERVAL ? DAY) <= date(`ana_date`) order by ana_date desc", d, l)
+	now := time.Now()
+	farAway := autils.GetCurrentData(now.AddDate(0, 0, -l))
+	day := autils.GetCurrentData(now)
+	rows, err := db.Query("select urls, ana_date from domain where domain = '" + d + "' and ana_date >= '" + farAway + "' and ana_date < '" + day + "' order by ana_date desc")
 	autils.ErrHadle(err)
 
 	for rows.Next() {
