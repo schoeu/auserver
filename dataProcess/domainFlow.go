@@ -58,7 +58,7 @@ func GetDFlow(c *gin.Context, db *sql.DB, q interface{}) {
 
 	var click, display, tClick, tDisplay, cRate, fRate string
 
-	rows, err := db.Query("select click, display, total_click, total_display, cd_rate, flow_rate from site_flow where date >= ? and  date <= ? and domain = ?", dateList[0], dateList[len(dateList)-1], dn)
+	rows, err := db.Query("select click, display, total_click, total_display, cd_rate, flow_rate from site_flow where date >= '" + dateList[0] + "' and  date <= '" + dateList[len(dateList)-1] + "' and domain = '" + dn + "'")
 
 	autils.ErrHadle(err)
 

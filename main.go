@@ -25,27 +25,23 @@ func main() {
 	logDb := autils.OpenDb("mysql", config.LogDb)
 	logDb.SetMaxOpenConns(100)
 	logDb.SetMaxIdleConns(20)
-	flowDb := autils.OpenDb("mysql", config.FlowDb)
-	flowDb.SetMaxOpenConns(100)
-	flowDb.SetMaxIdleConns(20)
 	pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
 	pqDB.SetMaxOpenConns(100)
 	pqDB.SetMaxIdleConns(20)
 
 	// API路由处理
-	apiRouters(router, logDb, flowDb, pqDB)
+	apiRouters(router, logDb, pqDB)
 
 	// 列表路由处理
 	listRouters(router, logDb)
 
 	defer logDb.Close()
-	defer flowDb.Close()
 	defer pqDB.Close()
 	router.Run(config.Port)
 }
 
 // API路由处理
-func apiRouters(router *gin.Engine, db *sql.DB, flowDb *sql.DB, pqDB *sql.DB) {
+func apiRouters(router *gin.Engine, db *sql.DB, pqDB *sql.DB) {
 	var qsArr, ddArr []interface{}
 	apis := router.Group("/api")
 
@@ -71,7 +67,7 @@ func apiRouters(router *gin.Engine, db *sql.DB, flowDb *sql.DB, pqDB *sql.DB) {
 			autils.ErrHadle(err)
 		}
 
-		processAct(c, dataType, qsArr, ddArr, db, flowDb, pqDB)
+		processAct(c, dataType, qsArr, ddArr, db, pqDB)
 	})
 }
 
@@ -107,7 +103,7 @@ func returnError(c *gin.Context, msg string) {
 }
 
 // 路径控制
-func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB, flowDb *sql.DB, pqDB *sql.DB) {
+func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *sql.DB, pqDB *sql.DB) {
 	if a == "tags" {
 		dataProcess.QueryTagsUrl(c, db, q)
 	} else if a == "tagsinfo" {
@@ -125,14 +121,13 @@ func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, db *
 	} else if a == "tagtotal" {
 		dataProcess.TotalData(c, db)
 	} else if a == "allflow" {
-		dataProcess.GetAllFlow(c, flowDb, q)
+		dataProcess.GetAllFlow(c, pqDB, q)
 	} else if a == "getdomains" {
-		dataProcess.GetDomains(c, flowDb)
+		dataProcess.GetDomains(c, pqDB)
 	} else if a == "getsiteflow" {
-		dataProcess.GetDFlow(c, flowDb, q)
+		dataProcess.GetDFlow(c, pqDB, q)
 	} else if a == "sitedetail" {
 		// test
-		//dataProcess.GetSDetail(c, flowDb, q)
 		dataProcess.GetSDetail(c, pqDB, q)
 	}
 }

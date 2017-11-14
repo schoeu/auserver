@@ -62,7 +62,7 @@ func GetAllFlow(c *gin.Context, db *sql.DB, q interface{}) {
 
 	var click, display, rate string
 
-	rows, err := db.Query("select click, display, cd_rate from all_flow where date >= ? and  date <= ?", dateList[0], dateList[len(dateList)-1])
+	rows, err := db.Query("select click, display, cd_rate from all_flow where date >= '" + dateList[0] + "' and  date <= '" + dateList[len(dateList)-1] + "'")
 
 	autils.ErrHadle(err)
 
