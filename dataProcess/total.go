@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type tStruct struct {
@@ -116,10 +117,11 @@ func TotalData(c *gin.Context, db *sql.DB) {
 
 func getUseTag(db *sql.DB, ch chan []string) {
 	tagCtt := []string{}
+	now := time.Now()
+	farAway := autils.GetCurrentData(now.AddDate(0, -1, 0))
+	day := autils.GetCurrentData(now)
 
-	sqlStr := "select distinct tag_name from tags where date_sub(curdate(), INTERVAL ? DAY) <= date(`ana_date`)"
-
-	rows, err := db.Query(sqlStr, 30)
+	rows, err := db.Query("select distinct tag_name from tags where ana_date >= '"+farAway+"' and ana_date < '"+day+"'")
 	autils.ErrHadle(err)
 
 	var name string
