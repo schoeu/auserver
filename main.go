@@ -27,8 +27,8 @@ func main() {
 		c.String(http.StatusOK, "Server is ok.")
 	})
 
-	// pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
-	pqDB := autils.OpenDb("postgres", config.PQTestUrl)
+	pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
+	// pqDB := autils.OpenDb("postgres", config.PQTestUrl)
 	pqDB.SetMaxOpenConns(100)
 	pqDB.SetMaxIdleConns(20)
 
