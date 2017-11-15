@@ -104,7 +104,7 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		bf.WriteString(tnVal)
 		bf.WriteString("' ")
 	}
-	bf.WriteString(" group by tag_name limit " + m)
+	bf.WriteString(" group by tag_name order by MAX(url_count) desc limit " + m)
 
 	rows, err := db.Query(bf.String())
 
