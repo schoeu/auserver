@@ -36,7 +36,7 @@ var (
 )
 
 // 组件被引用数统计
-func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
+func GetBarCountData(c *gin.Context, db *sql.DB) {
 	partCount := config.PartCount
 
 	tr := tcRs{}
@@ -63,7 +63,8 @@ func GetBarCountData(c *gin.Context, db *sql.DB, q interface{}, d interface{}) {
 	bf.WriteString(valStr)
 	bf.WriteString("' ")
 
-	tn := autils.AnaDrillDowns(d)
+	q, _ := c.Get("drillDowns")
+	tn := autils.AnaDrillDowns(q)
 	match, err := regexp.MatchString("mip-", tn)
 
 	if match && err == nil {

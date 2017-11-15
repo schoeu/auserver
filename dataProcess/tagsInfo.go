@@ -36,7 +36,7 @@ const tgPrefix = "/list/tags/"
 var tgMax = 100
 
 // 组件信息页面数据处理
-func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
+func TgUrl(c *gin.Context, db *sql.DB) {
 	partCount := config.PartCount
 	ri := tgRowsInfo{}
 	rs := tgDataStruct{}
@@ -65,6 +65,7 @@ func TgUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	bf.WriteString(valiDate)
 	bf.WriteString("' ")
 
+	q, _ := c.Get("conditions")
 	tn := autils.AnaChained(q)
 	match, err := regexp.MatchString("mip-", tn)
 

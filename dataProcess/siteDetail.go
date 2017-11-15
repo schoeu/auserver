@@ -42,7 +42,7 @@ type detailData struct {
 var dateTotal = map[string]int{}
 
 // 获取流量信息
-func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
+func GetSDetail(c *gin.Context, db *sql.DB) {
 
 	ts := tStruct{}
 	td := detailData{}
@@ -68,6 +68,7 @@ func GetSDetail(c *gin.Context, db *sql.DB, q interface{}) {
 	theDay := time.Now().AddDate(0, 0, -3)
 	startDate = autils.GetCurrentData(theDay)
 
+	q, _ := c.Get("conditions")
 	sDate, _ := autils.AnaDate(q)
 	if sDate != "" {
 		vas, _ := time.Parse(shortForm, sDate)

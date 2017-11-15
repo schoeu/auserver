@@ -18,9 +18,9 @@ func GetDomains(c *gin.Context, db *sql.DB) {
 	max = autils.CheckSql(max)
 	var data []domainsType
 	domain := ""
-	// rows, err := db.Query("select domain from domains limit ?", max)
+	rows, err := db.Query("select domain from domains limit " + max)
 	// TODO: 数据不全，暂时查询有数据的站点, 数据恢复后更改为查询站点表数据
-	rows, err := db.Query("select distinct domain from site_flow limit " + max)
+	//rows, err := db.Query("select distinct domain from site_flow limit " + max)
 
 	autils.ErrHadle(err)
 

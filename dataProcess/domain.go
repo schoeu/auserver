@@ -33,7 +33,7 @@ const urlPrefix = "/list/domain/"
 var maxLenth = 100
 
 // 域名数据组装
-func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
+func DomainUrl(c *gin.Context, db *sql.DB) {
 	partCount := config.PartCount
 
 	ri := rowsInfo{}
@@ -52,6 +52,7 @@ func DomainUrl(c *gin.Context, db *sql.DB, q interface{}) {
 	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
 
+	q, _ := c.Get("conditions")
 	sDate := autils.AnaSigleDate(q)
 	s := yesterday
 	if sDate != "" {

@@ -10,7 +10,8 @@ import (
 )
 
 // 获取流量信息
-func GetDFlow(c *gin.Context, db *sql.DB, q interface{}) {
+func GetDFlow(c *gin.Context, db *sql.DB) {
+	q, _ := c.Get("conditions")
 	sDate, eDate := autils.AnaDate(q)
 	vas, _ := time.Parse(shortForm, sDate)
 	vae, _ := time.Parse(shortForm, eDate)

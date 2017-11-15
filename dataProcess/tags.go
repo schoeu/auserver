@@ -21,7 +21,7 @@ var (
 )
 
 // 组件查询
-func QueryTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
+func QueryTagsUrl(c *gin.Context, db *sql.DB) {
 	partCount := config.PartCount
 
 	itArr := []infoType{}

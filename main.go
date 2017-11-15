@@ -3,9 +3,10 @@ package main
 import (
 	"./autils"
 	"./config"
+	"./routers"
 	"./dataProcess"
+	"./middlewares"
 	"database/sql"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"path/filepath"
@@ -15,30 +16,34 @@ import (
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 
-	router := gin.Default()
+	app := gin.Default()
+
+	// 使用中间件获取参数
+	app.Use(middlewares.Params())
+
 	cwd := autils.GetCwd()
-	router.LoadHTMLGlob(filepath.Join(cwd, "views/*"))
-	router.GET("/", func(c *gin.Context) {
+	app.LoadHTMLGlob(filepath.Join(cwd, "views/*"))
+	app.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Server is ok.")
 	})
 
-	pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
+	// pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
+	pqDB := autils.OpenDb("postgres", config.PQTestUrl)
 	pqDB.SetMaxOpenConns(100)
 	pqDB.SetMaxIdleConns(20)
 
 	// API路由处理
-	apiRouters(router, pqDB)
+	apiRouters(app, pqDB)
 
 	// 列表路由处理
-	listRouters(router, pqDB)
+	listRouters(app, pqDB)
 
 	defer pqDB.Close()
-	router.Run(config.Port)
+	app.Run(config.Port)
 }
 
 // API路由处理
 func apiRouters(router *gin.Engine, pqDB *sql.DB) {
-	var qsArr, ddArr []interface{}
 	apis := router.Group("/api")
 
 	apis.GET("/:type", func(c *gin.Context) {
@@ -50,20 +55,7 @@ func apiRouters(router *gin.Engine, pqDB *sql.DB) {
 			return
 		}
 
-		conditions := c.Query("conditions")
-		drillDowns := c.Query("drillDowns")
-
-		if conditions != "" {
-			err := json.Unmarshal([]byte(conditions), &qsArr)
-			autils.ErrHadle(err)
-		}
-
-		if drillDowns != "" {
-			err := json.Unmarshal([]byte(drillDowns), &ddArr)
-			autils.ErrHadle(err)
-		}
-
-		processAct(c, dataType, qsArr, ddArr, pqDB)
+		processAct(c, dataType, pqDB)
 	})
 }
 
@@ -99,31 +91,12 @@ func returnError(c *gin.Context, msg string) {
 }
 
 // 路径控制
-func processAct(c *gin.Context, a string, q []interface{}, d []interface{}, pqDB *sql.DB) {
-	if a == "tags" {
-		dataProcess.QueryTagsUrl(c, pqDB, q)
-	} else if a == "tagsinfo" {
-		dataProcess.TgUrl(c, pqDB, q)
-	} else if a == "count" {
-		dataProcess.LineTagsUrl(c, pqDB, q)
-	} else if a == "domains" {
-		dataProcess.DomainUrl(c, pqDB, q)
-	} else if a == "select" {
-		dataProcess.GetSelect(c, pqDB)
-	} else if a == "tagsbar" {
-		dataProcess.GetTagsBarData(c, pqDB, q)
-	} else if a == "barcount" {
-		dataProcess.GetBarCountData(c, pqDB, q, d)
-	} else if a == "tagtotal" {
-		dataProcess.TotalData(c, pqDB)
-	} else if a == "allflow" {
-		dataProcess.GetAllFlow(c, pqDB, q)
-	} else if a == "getdomains" {
-		dataProcess.GetDomains(c, pqDB)
-	} else if a == "getsiteflow" {
-		dataProcess.GetDFlow(c, pqDB, q)
-	} else if a == "sitedetail" {
-		// test
-		dataProcess.GetSDetail(c, pqDB, q)
+func processAct(c *gin.Context, a string, pqDB *sql.DB) {
+	handler := routers.RouterMap[a]
+
+	if handler != nil {
+		handler(c, pqDB)
+	} else {
+		returnError(c, "No such operation.")
 	}
 }

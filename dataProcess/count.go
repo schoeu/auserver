@@ -33,11 +33,12 @@ const (
 )
 
 // 组件折线图数据组装
-func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
+func LineTagsUrl(c *gin.Context, db *sql.DB) {
 	partCount := config.PartCount
 	limit := "10"
 	dateList := dateCtt{}
 
+	q, _ := c.Get("conditions")
 	sDate, eDate := autils.AnaDate(q)
 	vas, _ := time.Parse(shortForm, sDate)
 	vae, _ := time.Parse(shortForm, eDate)

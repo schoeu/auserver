@@ -31,7 +31,7 @@ var (
 )
 
 // 组件柱状图api数据
-func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
+func GetTagsBarData(c *gin.Context, db *sql.DB) {
 	partCount := config.PartCount
 	bit := barInfoType{}
 	var bs, bsLine barSeries
@@ -52,6 +52,7 @@ func GetTagsBarData(c *gin.Context, db *sql.DB, q interface{}) {
 		date = customDate
 	}
 
+	q, _ := c.Get("conditions")
 	tn := autils.AnaChained(q)
 	match, err := regexp.MatchString("mip-", tn)
 
