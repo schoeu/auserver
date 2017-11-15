@@ -80,7 +80,7 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		m = limit
 	}
 
-	var name, dbDate string
+	var name, countStr string
 	tn := autils.AnaChained(q)
 	match, err := regexp.MatchString("mip-", tn)
 
@@ -104,15 +104,14 @@ func LineTagsUrl(c *gin.Context, db *sql.DB, q interface{}) {
 		bf.WriteString(tnVal)
 		bf.WriteString("' ")
 	}
-	bf.WriteString(" group by tag_name order by url_count desc limit " + m)
+	bf.WriteString(" group by tag_name limit " + m)
 
 	rows, err := db.Query(bf.String())
 
 	autils.ErrHadle(err)
 
-	countStr := ""
 	for rows.Next() {
-		err := rows.Scan(&name, &countStr, &dbDate)
+		err := rows.Scan(&name, &countStr)
 		autils.ErrHadle(err)
 
 		countInfoArr := strings.Split(countStr, ",")

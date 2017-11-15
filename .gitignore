@@ -16,3 +16,4 @@
 config
 auserver8*
 .DS_Store
+supervisord*
