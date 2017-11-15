@@ -25,13 +25,23 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 
 	td := newerData{}
 
+	day := autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
+
+	q, _ := c.Get("conditions")
+	sDate, _ := autils.AnaDate(q)
+	if sDate != "" {
+		vas, _ := time.Parse(shortForm, sDate)
+		vasDate := autils.GetCurrentData(vas)
+		day = vasDate
+	}
+
 	allFlowCh := make(chan int)
 	dCountCh := make(chan int)
 	newerCh := make(chan int)
 
-	go getAllFlow(db, allFlowCh)
-	go getDCount(db, dCountCh)
-	go getNewer(db, newerCh)
+	go getAllFlow(db, allFlowCh, day)
+	go getDCount(db, dCountCh, day)
+	go getNewer(db, newerCh, day)
 
 	allFlow := <-allFlowCh
 	dCount := <-dCountCh
@@ -66,9 +76,7 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 }
 
 // 当前流量
-func getAllFlow(db *sql.DB, ch chan int) {
-	day := autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
-
+func getAllFlow(db *sql.DB, ch chan int, day string) {
 	rows, err := db.Query("select click from all_flow where date = '" + day + "'")
 	autils.ErrHadle(err)
 
@@ -86,9 +94,7 @@ func getAllFlow(db *sql.DB, ch chan int) {
 }
 
 // 域名总数
-func getDCount(db *sql.DB, ch chan int) {
-	day := autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
-
+func getDCount(db *sql.DB, ch chan int, day string) {
 	rows, err := db.Query("select count(domain) from site_detail where date = '" + day + "'")
 	autils.ErrHadle(err)
 
@@ -105,15 +111,8 @@ func getDCount(db *sql.DB, ch chan int) {
 	ch <- total
 }
 
-/*func getHrefStr(c *gin.Context, t string, num int) string {
-
-	return "<a href='http://" + c.Request.Host + "/list/tags/" + t + "' target='_blank'>" + strconv.Itoa(num) + "</a>"
-}*/
-
 // 返回全部组件数据
-func getNewer(db *sql.DB, ch chan int) {
-	now := time.Now()
-	day := autils.GetCurrentData(now.AddDate(0, 0, -2))
+func getNewer(db *sql.DB, ch chan int, day string) {
 	var newers []string
 	domain := ""
 	rows, err := db.Query("select domain from site_detail where access_date = '" + day + "'")
