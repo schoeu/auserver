@@ -112,7 +112,7 @@ func getLength(c *gin.Context) int {
 	return max
 }
 
-// /list/tags/路由时间解析
+// /list/tags/路由解析
 func SampleData(c *gin.Context, db *sql.DB, showType string) {
 	var s, title string
 	if showType == "core" {
