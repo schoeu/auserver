@@ -35,16 +35,18 @@ func GetCwd() string {
 
 // 解析daterange参数
 func AnaDate(q interface{}) (string, string) {
-	cData := q.([]interface{})
 	sDate := ""
 	eDate := ""
-	for _, v := range cData {
-		tm := v.(map[string]interface{})
-		t := tm["t"]
-		if t == "daterange" {
-			dateVal := strings.Split(tm["v"].(string), ",")
-			sDate = dateVal[0]
-			eDate = dateVal[1]
+	if q != nil {
+		cData := q.([]interface{})
+		for _, v := range cData {
+			tm := v.(map[string]interface{})
+			t := tm["t"]
+			if t == "daterange" {
+				dateVal := strings.Split(tm["v"].(string), ",")
+				sDate = dateVal[0]
+				eDate = dateVal[1]
+			}
 		}
 	}
 	return sDate, eDate
@@ -52,28 +54,33 @@ func AnaDate(q interface{}) (string, string) {
 
 // 解析date参数
 func AnaSigleDate(q interface{}) string {
-	cData := q.([]interface{})
 	dateVal := ""
-	for _, v := range cData {
-		tm := v.(map[string]interface{})
-		t := tm["t"]
-		if t == "date" {
-			dateVal = tm["v"].(string)
+	if q != nil {
+		cData := q.([]interface{})
+		for _, v := range cData {
+			tm := v.(map[string]interface{})
+			t := tm["t"]
+			if t == "date" {
+				dateVal = tm["v"].(string)
+			}
 		}
 	}
+
 	return dateVal
 }
 
 // 解析select参数
 func AnaSelect(q interface{}) string {
-	cotent := q.([]interface{})
 	dateVal := ""
-	for _, v := range cotent {
-		tm := v.(map[string]interface{})
-		t := tm["t"]
-		if t == "select" {
-			dateVal = tm["v"].(string)
+	if q != nil {
+		cotent := q.([]interface{})
+		for _, v := range cotent {
+			tm := v.(map[string]interface{})
+			t := tm["t"]
+			if t == "select" {
+				dateVal = tm["v"].(string)
 
+			}
 		}
 	}
 	return dateVal
@@ -81,16 +88,18 @@ func AnaSelect(q interface{}) string {
 
 // 解析chained参数
 func AnaChained(q interface{}) string {
-	cotent := q.([]interface{})
 	dateVal := ""
-	for _, v := range cotent {
-		tm := v.(map[string]interface{})
-		t := tm["t"]
-		if t == "chained" {
-			dateVal = tm["v"].(string)
-			data := strings.Split(dateVal, ",")
-			if len(data) > 1 {
-				dateVal = data[1]
+	if q != nil {
+		cotent := q.([]interface{})
+		for _, v := range cotent {
+			tm := v.(map[string]interface{})
+			t := tm["t"]
+			if t == "chained" {
+				dateVal = tm["v"].(string)
+				data := strings.Split(dateVal, ",")
+				if len(data) > 1 {
+					dateVal = data[1]
+				}
 			}
 		}
 	}
@@ -99,20 +108,23 @@ func AnaChained(q interface{}) string {
 
 // 解析drilldowmn参数
 func AnaDrillDowns(q interface{}) string {
-	cotent := q.([]interface{})
 	dateVal := ""
-	for _, v := range cotent {
-		tm := v.(map[string]interface{})
-		t := tm["item"]
-		item := t.(map[string]interface{})
+	if q != nil {
+		cotent := q.([]interface{})
+		for _, v := range cotent {
+			tm := v.(map[string]interface{})
+			t := tm["item"]
+			item := t.(map[string]interface{})
 
-		for k, val := range item {
-			if k == "category" {
-				dateVal = val.(string)
-				break
+			for k, val := range item {
+				if k == "category" {
+					dateVal = val.(string)
+					break
+				}
 			}
 		}
 	}
+
 	return dateVal
 }
 
