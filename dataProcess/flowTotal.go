@@ -28,9 +28,9 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 	day := autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
 
 	q, _ := c.Get("conditions")
-	sDate, _ := autils.AnaDate(q)
-	if sDate != "" {
-		day = sDate
+	_, eDate := autils.AnaDate(q)
+	if eDate != "" {
+		day = eDate
 	}
 
 	allFlowCh := make(chan int)
