@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -19,11 +20,12 @@ type tgStruct struct {
 }
 
 type tgRowsInfo struct {
-	Domain         string `json:"domain"`
-	Count          int    `json:"count"`
-	Example        string `json:"example"`
-	Example_ishtml bool   `json:"example_ishtml"`
-	DomainCount    int    `json:"domainCount"`
+	Domain         string   `json:"domain"`
+	Count          int      `json:"count"`
+	Example        string   `json:"example"`
+	Example_ishtml bool     `json:"example_ishtml"`
+	DomainCount    int      `json:"domainCount"`
+	Urls           []string `json:"urls"`
 }
 
 type tgDataStruct struct {
@@ -92,6 +94,7 @@ func TgUrl(c *gin.Context, db *sql.DB) {
 		ri.Example = "<a href='http://" + c.Request.Host + tgPrefix + name + "' target='_blank'>查看详情</a>"
 		ri.Example_ishtml = true
 		ri.DomainCount = int(domainCount.Int64)
+		ri.Urls = strings.Split(urls, ",")
 		rs.Rows = append(rs.Rows, ri)
 	}
 	err = rows.Err()
