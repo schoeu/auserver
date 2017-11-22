@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"../autils"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 )
@@ -15,14 +14,17 @@ func Params() gin.HandlerFunc {
 
 		if conditions != "" {
 			err := json.Unmarshal([]byte(conditions), &qsArr)
-			autils.ErrHadle(err)
-			c.Set("conditions", qsArr)
+			if err == nil {
+				c.Set("conditions", qsArr)
+			}
+
 		}
 
 		if drillDowns != "" {
 			err := json.Unmarshal([]byte(drillDowns), &ddArr)
-			autils.ErrHadle(err)
-			c.Set("drillDowns", ddArr)
+			if err == nil {
+				c.Set("drillDowns", ddArr)
+			}
 		}
 		c.Next()
 	}
