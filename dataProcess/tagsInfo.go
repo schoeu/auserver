@@ -69,6 +69,12 @@ func TgUrl(c *gin.Context, db *sql.DB) {
 
 	q, _ := c.Get("conditions")
 	tn := autils.AnaChained(q)
+
+	customTag := c.Query("tag")
+	if ml != "" {
+		tn = customTag
+	}
+
 	match, err := regexp.MatchString("mip-", tn)
 
 	if match && err == nil {
