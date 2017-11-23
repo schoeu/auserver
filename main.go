@@ -3,9 +3,9 @@ package main
 import (
 	"./autils"
 	"./config"
-	"./routers"
 	"./dataProcess"
 	"./middlewares"
+	"./routers"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -28,7 +28,7 @@ func main() {
 	})
 
 	pqDB := autils.OpenDb("postgres", config.PQFlowUrl)
-	// pqDB := autils.OpenDb("postgres", config.PQTestUrl)
+	//pqDB := autils.OpenDb("postgres", config.PQTestUrl)
 	pqDB.SetMaxOpenConns(100)
 	pqDB.SetMaxIdleConns(20)
 
