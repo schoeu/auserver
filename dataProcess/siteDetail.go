@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -96,6 +97,13 @@ func GetSDetail(c *gin.Context, db *sql.DB) {
 	if field == "" {
 		field = "total_pv"
 	}
+
+	// 排序类型转换
+	match, _ := regexp.MatchString("_rate", field)
+	if match {
+		field = "cast(" + field + " as real)"
+	}
+
 	sqlStr.WriteString(" order by " + field + " ")
 
 	sortType = autils.CheckSql(sortType)
