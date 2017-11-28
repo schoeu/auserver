@@ -9,37 +9,23 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
-type tgStruct struct {
-	Name      string `json:"name"`
-	Id        string `json:"id"`
-	TextAlign string `json:"textAlign"`
+type trInfo struct {
+	Tag         string   `json:"tag"`
+	Count       int      `json:"count"`
+	DomainCount int      `json:"domainCount"`
+	Urls        []string `json:"urls"`
 }
-
-type tgRowsInfo struct {
-	Domain         string `json:"domain"`
-	Count          int    `json:"count"`
-	Example        string `json:"example"`
-	Example_ishtml bool   `json:"example_ishtml"`
-	DomainCount    int    `json:"domainCount"`
-}
-
-type tgDataStruct struct {
-	Columns []tgStruct   `json:"columns"`
-	Rows    []tgRowsInfo `json:"rows"`
-}
-
-const tgPrefix = "/list/tags/"
-
-var tgMax = 100
 
 // 组件信息页面数据处理
-func TgUrl(c *gin.Context, db *sql.DB) {
+func GetTags(c *gin.Context, db *sql.DB) {
 	partCount := config.PartCount
-	ri := tgRowsInfo{}
-	rs := tgDataStruct{}
+	ri := trInfo{}
+
+	var rs []trInfo
 
 	var name, urls string
 	var count, domainCount sql.NullInt64
@@ -65,13 +51,7 @@ func TgUrl(c *gin.Context, db *sql.DB) {
 	bf.WriteString(valiDate)
 	bf.WriteString("' ")
 
-	q, _ := c.Get("conditions")
-	tn := autils.AnaChained(q)
-
-	customTag := c.Query("tag")
-	if customTag != "" {
-		tn = customTag
-	}
+	tn := c.Query("tag")
 
 	match, err := regexp.MatchString("mip-", tn)
 
@@ -93,35 +73,16 @@ func TgUrl(c *gin.Context, db *sql.DB) {
 		err := rows.Scan(&name, &count, &urls, &domainCount)
 		autils.ErrHadle(err)
 
-		ri.Domain = name
+		ri.Tag = name
 		ri.Count = int(count.Int64) * partCount
-		ri.Example = "<a href='http://" + c.Request.Host + tgPrefix + name + "' target='_blank'>查看详情</a>"
-		ri.Example_ishtml = true
 		ri.DomainCount = int(domainCount.Int64)
-		rs.Rows = append(rs.Rows, ri)
+		ri.Urls = strings.Split(urls, ",")
+		rs = append(rs, ri)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 
 	defer rows.Close()
-
-	rs.Columns = []tgStruct{{
-		"组件名",
-		"domain",
-		"",
-	}, {
-		"引用数",
-		"count",
-		"center",
-	}, {
-		"站点引用量",
-		"domainCount",
-		"center",
-	}, {
-		"示例url",
-		"example",
-		"center",
-	}}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
