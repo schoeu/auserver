@@ -99,10 +99,12 @@ func GetSDetail(c *gin.Context, db *sql.DB) {
 	}
 
 	// 排序类型转换
+	/*
 	match, _ := regexp.MatchString("_rate", field)
 	if match {
 		field = "cast(" + field + " as real)"
 	}
+	*/
 
 	sqlStr.WriteString(" order by " + field + " ")
 
