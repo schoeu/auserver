@@ -34,7 +34,10 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 		day = eDate
 	}
 
-	var allFlowCh, dCountCh, newerCh, recordCh chan int
+	allFlowCh := make(chan int)
+	dCountCh := make(chan int)
+	newerCh := make(chan int)
+	recordCh := make(chan int)
 
 	go getAllFlow(db, allFlowCh, day)
 	go getDCount(db, dCountCh, day)
