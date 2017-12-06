@@ -70,7 +70,7 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 		"newer",
 		center,
 	}, {
-		"当天收录URL总数",
+		"收录URL总数",
 		"record",
 		center,
 	}}
