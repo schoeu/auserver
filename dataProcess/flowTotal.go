@@ -137,20 +137,21 @@ func getNewer(db *sql.DB, ch chan int, day string) {
 
 // 返回收录url数
 func getRecord(db *sql.DB, ch chan int, day string) {
-	var newers []string
-	domain := ""
-	rows, err := db.Query("select MAX(record_url) from site_detail where access_date = '" + day + "'")
+	var records int64
+
+	var count sql.NullInt64
+	rows, err := db.Query("select record_url from site_detail where date = '" + day + "' order by record_url desc limit 1 offset 0")
 
 	autils.ErrHadle(err)
 
 	for rows.Next() {
-		err := rows.Scan(&domain)
+		err := rows.Scan(&count)
 		autils.ErrHadle(err)
 
-		newers = append(newers, domain)
+		records = count.Int64
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 
-	ch <- len(newers)
+	ch <- int(records)
 }
