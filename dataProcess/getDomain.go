@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 type domainsType struct {
@@ -18,9 +19,11 @@ func GetDomains(c *gin.Context, db *sql.DB) {
 	max = autils.CheckSql(max)
 	var data []domainsType
 	domain := ""
-	rows, err := db.Query("select domain from domains limit " + max)
-	// TODO: 数据不全，暂时查询有数据的站点, 数据恢复后更改为查询站点表数据
-	//rows, err := db.Query("select distinct domain from site_flow limit " + max)
+	// 默认获取前两天数据
+	date := autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
+
+	//rows, err := db.Query("select domain from domains limit " + max)
+	rows, err := db.Query("select domain from site_detail limit " + max + " where date = " + date)
 
 	autils.ErrHadle(err)
 
