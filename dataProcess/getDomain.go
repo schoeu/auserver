@@ -15,15 +15,20 @@ type domainsType struct {
 
 // 返回全部组件数据
 func GetDomains(c *gin.Context, db *sql.DB) {
-	max := c.DefaultQuery("max", "500")
+	max := c.Query("max")
 	max = autils.CheckSql(max)
 	var data []domainsType
 	domain := ""
 	// 默认获取前两天数据
 	date := autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
 
+	sqlStr := "select domain from site_detail where date = '" + date + "'"
+	if max != "" {
+		sqlStr += " limit " + max
+	}
+
 	//rows, err := db.Query("select domain from domains limit " + max)
-	rows, err := db.Query("select domain from site_detail limit " + max + " where date = " + date)
+	rows, err := db.Query(sqlStr)
 
 	autils.ErrHadle(err)
 
