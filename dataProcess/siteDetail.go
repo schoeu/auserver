@@ -112,7 +112,7 @@ func GetSDetail(c *gin.Context, db *sql.DB) {
 	if sortType == "" {
 		sortType = "desc"
 	}
-	sqlStr.WriteString(" " + sortType + "")
+	sqlStr.WriteString(" " + sortType + ", id ")
 
 	_, err := strconv.Atoi(limit)
 	if err == nil {
