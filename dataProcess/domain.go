@@ -59,11 +59,21 @@ func DomainUrl(c *gin.Context, db *sql.DB) {
 		s = sDate
 	}
 
+	text := autils.AnaText(q)
+	text = autils.CheckSql(text)
+
 	if customDate != "" {
 		s = customDate
 	}
 
-	rows, err := db.Query("select domain,url_count,urls from domain where ana_date = '" + s + "' order by url_count desc limit " + strconv.Itoa(maxLenth))
+	sqlStr := "select domain,url_count,urls from domain where ana_date = '" + s
+	if text != "" {
+		sqlStr += "' and domain like '%" + text + "%"
+	}
+
+	sqlStr += "' order by url_count desc limit " + strconv.Itoa(maxLenth)
+
+	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
 	for rows.Next() {

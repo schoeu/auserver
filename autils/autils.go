@@ -106,6 +106,26 @@ func AnaChained(q interface{}) string {
 	return dateVal
 }
 
+// 解析chained参数
+func AnaText(q interface{}) string {
+	dateVal := ""
+	if q != nil {
+		cotent := q.([]interface{})
+		for _, v := range cotent {
+			tm := v.(map[string]interface{})
+			t := tm["t"]
+			if t == "text" {
+				dateVal = tm["v"].(string)
+				data := strings.Split(dateVal, ",")
+				if len(data) > 1 {
+					dateVal = data[1]
+				}
+			}
+		}
+	}
+	return dateVal
+}
+
 // 解析drilldowmn参数
 func AnaDrillDowns(q interface{}) string {
 	dateVal := ""
