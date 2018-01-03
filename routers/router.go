@@ -21,4 +21,5 @@ var RouterMap = map[string]func(*gin.Context, *sql.DB){
 	"sitedetail":  dataProcess.GetSDetail,
 	"flowtotal":   dataProcess.FlowTotal,
 	"gettags":     dataProcess.GetTags,
+	"arrival":     dataProcess.UpdateArrival,
 }
