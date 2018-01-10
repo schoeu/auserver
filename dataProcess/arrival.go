@@ -2,12 +2,14 @@ package dataProcess
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"regexp"
+	"strconv"
 	"time"
 
 	"../autils"
-	"regexp"
 )
 
 // 组件概况数据处理
@@ -28,8 +30,15 @@ func UpdateArrival(c *gin.Context, db *sql.DB) {
 		}
 	}
 
+	pv := getPv(date, db)
+	intPv, _ := strconv.Atoi(count)
+	rsPv := "0"
+	if pv != 0 {
+		rsPv = fmt.Sprintf("%.2f", float32(intPv)/float32(pv)*100)
+	}
+
 	rsText := "ok"
-	_, err := db.Exec("update all_flow set wb_pv =  '" + count + "' where date = '" + date + "'")
+	_, err := db.Exec("update all_flow set wb_pv =  '" + count + "', arrival_rate = '" + rsPv + "' where date = '" + date + "'")
 
 	if err != nil {
 		rsText = "failed"
@@ -39,4 +48,19 @@ func UpdateArrival(c *gin.Context, db *sql.DB) {
 		"status": 0,
 		"msg":    rsText,
 	})
+}
+
+func getPv(date string, db *sql.DB) int {
+	var pv int
+	rows, err := db.Query("select pv from site_detail where date = '" + date + "' and domain = '总和'")
+
+	autils.ErrHadle(err)
+
+	for rows.Next() {
+		err := rows.Scan(&pv)
+		autils.ErrHadle(err)
+	}
+	err = rows.Err()
+	autils.ErrHadle(err)
+	return pv
 }
