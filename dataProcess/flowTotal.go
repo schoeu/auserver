@@ -26,7 +26,8 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 
 	td := newerData{}
 
-	day := autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
+	dayTime := time.Now().AddDate(0, 0, -2)
+	day := autils.GetCurrentData(dayTime)
 
 	q, _ := c.Get("conditions")
 	_, eDate := autils.AnaDate(q)
@@ -41,7 +42,7 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 
 	go getAllFlow(db, allFlowCh, day)
 	go getDCount(db, dCountCh, day)
-	go getNewer(db, newerCh, day)
+	go getNewer(db, newerCh, dayTime)
 	go getRecord(db, recordCh, day)
 
 	allFlow := <-allFlowCh
@@ -66,7 +67,7 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 		"domain",
 		center,
 	}, {
-		"新增站点数",
+		"站点净增数",
 		"newer",
 		center,
 	}, {
@@ -119,23 +120,23 @@ func getDCount(db *sql.DB, ch chan int, day string) {
 }
 
 // 返回全部组件数据
-func getNewer(db *sql.DB, ch chan int, day string) {
-	var newers []string
-	domain := ""
-	rows, err := db.Query("select domain from site_detail where access_date = '" + day + "'")
-
+func getNewer(db *sql.DB, ch chan int, dayTime time.Time) {
+	var newers []int
+	num := ""
+	now := autils.GetCurrentData(dayTime)
+	day := autils.GetCurrentData(dayTime.AddDate(0, 0, -1))
+	rows, err := db.Query("select count(*) from site_detail where date = '" + day + "' union all select count(*) from site_detail where date = '" + now + "'")
 	autils.ErrHadle(err)
 
 	for rows.Next() {
-		err := rows.Scan(&domain)
+		err := rows.Scan(&num)
 		autils.ErrHadle(err)
-
-		newers = append(newers, domain)
+		newers = append(newers, num)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 
-	ch <- len(newers)
+	ch <- len(newers[1] - newers[2])
 }
 
 // 返回收录url数
