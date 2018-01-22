@@ -3,6 +3,7 @@ package dataProcess
 import (
 	"../autils"
 	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -20,7 +21,7 @@ type cheatData struct {
 
 // 作弊请求数据处理
 func HandleCheat(c *gin.Context, db *sql.DB) {
-	center := "center"
+	position := "left"
 	cd := cheatData{}
 
 	date := c.Query("date")
@@ -31,18 +32,17 @@ func HandleCheat(c *gin.Context, db *sql.DB) {
 	q, _ := c.Get("conditions")
 	sDate := autils.AnaSigleDate(q)
 	s := date
-	if date != "" {
+	if sDate != "" {
 		s = sDate
 	}
-
 	cd.Columns = []tStruct{{
 		"站点",
 		"domain",
-		center,
+		position,
 	}, {
 		"拦截的作弊请求数",
 		"num",
-		center,
+		position,
 	}}
 
 	infos := getCheatInfo(db, s)
@@ -57,7 +57,9 @@ func HandleCheat(c *gin.Context, db *sql.DB) {
 }
 
 func getCheatInfo(db *sql.DB, date string) []cRowsInfo {
-	rows, err := db.Query("select site, site_num from mip_spam where asc_date == '" + date + "' order by site_num desc")
+	sqlStr := "select site, site_num from mip_spam where asc_date = '" + date + "' order by site_num desc"
+	fmt.Println(sqlStr)
+	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
 	var name string
