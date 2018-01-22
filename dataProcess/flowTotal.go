@@ -3,6 +3,7 @@ package dataProcess
 import (
 	"../autils"
 	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -122,7 +123,7 @@ func getDCount(db *sql.DB, ch chan int, day string) {
 // 返回全部组件数据
 func getNewer(db *sql.DB, ch chan int, dayTime time.Time) {
 	var newers []int
-	num := ""
+	num := 0
 	now := autils.GetCurrentData(dayTime)
 	day := autils.GetCurrentData(dayTime.AddDate(0, 0, -1))
 	rows, err := db.Query("select count(*) from site_detail where date = '" + day + "' union all select count(*) from site_detail where date = '" + now + "'")
@@ -135,8 +136,8 @@ func getNewer(db *sql.DB, ch chan int, dayTime time.Time) {
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
-
-	ch <- len(newers[1] - newers[2])
+	fmt.Println(newers[1] - newers[2])
+	ch <- newers[1] - newers[2]
 }
 
 // 返回收录url数
