@@ -24,5 +24,4 @@ var RouterMap = map[string]func(*gin.Context, *sql.DB){
 	"arrival":     dataProcess.UpdateArrival,
 	"cheat":       dataProcess.HandleCheat,
 	"pvrate":       dataProcess.GetPvRate,
-	"notice":       dataProcess.Notice,
 }
