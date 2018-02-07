@@ -76,7 +76,7 @@ func getDimInfo(db *sql.DB, date, start, limit string) []dimRowsInfo {
 	showText := []string{"", "二跳", "多跳"}
 
 	var sqlStr bytes.Buffer
-	sqlStr.WriteString("select type, url, url_count from mip_step where date = '" + date + "' order by count desc ")
+	sqlStr.WriteString("select type, url, url_count from mip_step where date = '" + date + "' order by url_count desc ")
 
 	_, err := strconv.Atoi(limit)
 	if err == nil {
