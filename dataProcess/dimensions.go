@@ -56,14 +56,19 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 		position,
 	}}
 
+	ch := make(chan []int)
+	go getStepTotal(db, date, ch)
+	oData := <-ch
+
 	infos := getDimInfo(db, s, start, limit)
+
+	cri := dimRowsInfo{}
+	cri.Domain = "总计"
+	cri.Num = oData[1]
 
 	cd.Rows = infos
 
-	ch := make(chan int)
-	go getStepTotal(db, date, ch)
-
-	cd.Total = <-ch
+	cd.Total = oData[0]
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
@@ -110,14 +115,15 @@ func getDimInfo(db *sql.DB, date, start, limit string) []dimRowsInfo {
 	return criArr
 }
 
-func getStepTotal(db *sql.DB, date string, ch chan int) {
-	rows, err := db.Query("select count(id) from mip_step where date = '" + date + "'")
-
+func getStepTotal(db *sql.DB, date string, ch chan []int) {
+	rows, err := db.Query("select count(id), sum(url_count) from mip_step where date = '" + date + "'")
+	rsArr := []int{}
 	autils.ErrHadle(err)
-	count := 0
+	var count, sum int
 	for rows.Next() {
-		err := rows.Scan(&count)
+		err := rows.Scan(&count, &sum)
 		autils.ErrHadle(err)
+		rsArr = append(rsArr, count, sum)
 	}
 
 	err = rows.Err()
@@ -125,5 +131,5 @@ func getStepTotal(db *sql.DB, date string, ch chan int) {
 
 	defer rows.Close()
 
-	ch <- count
+	ch <- rsArr
 }
