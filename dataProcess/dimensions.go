@@ -62,11 +62,13 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 
 	infos := getDimInfo(db, s, start, limit)
 
-	cri := dimRowsInfo{}
-	cri.Domain = "总计"
-	cri.Num = oData[1]
-
-	infos = append([]dimRowsInfo{cri}, infos...)
+	// 只在第一页显示
+	if start == "0" {
+		cri := dimRowsInfo{}
+		cri.Domain = "总计"
+		cri.Num = oData[1]
+		infos = append([]dimRowsInfo{cri}, infos...)
+	}
 
 	cd.Rows = infos
 
