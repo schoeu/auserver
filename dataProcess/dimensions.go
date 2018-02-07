@@ -57,7 +57,7 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 	}}
 
 	ch := make(chan []int)
-	go getStepTotal(db, date, ch)
+	go getStepTotal(db, s, ch)
 	oData := <-ch
 
 	infos := getDimInfo(db, s, start, limit)
