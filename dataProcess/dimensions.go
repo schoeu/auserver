@@ -1,27 +1,29 @@
 package dataProcess
 
 import (
-	"../autils"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+
+	"../autils"
 )
 
-type cRowsInfo struct {
+type dimRowsInfo struct {
 	Domain string `json:"domain"`
+	MType  string `json:"type"`
 	Num    int    `json:"num"`
 }
 
-type cheatData struct {
-	Columns []tStruct   `json:"columns"`
-	Rows    []cRowsInfo `json:"rows"`
+type dimData struct {
+	Columns []tStruct     `json:"columns"`
+	Rows    []dimRowsInfo `json:"rows"`
 }
 
 // 作弊请求数据处理
-func HandleCheat(c *gin.Context, db *sql.DB) {
+func Dimensions(c *gin.Context, db *sql.DB) {
 	position := "left"
-	cd := cheatData{}
+	cd := dimData{}
 
 	date := c.Query("date")
 	if date == "" {
@@ -39,12 +41,16 @@ func HandleCheat(c *gin.Context, db *sql.DB) {
 		"domain",
 		position,
 	}, {
-		"拦截的作弊请求数",
+		"类型",
+		"type",
+		position,
+	}, {
+		"点击量",
 		"num",
 		position,
 	}}
 
-	infos := getCheatInfo(db, s)
+	infos := getDimInfo(db, s)
 
 	cd.Rows = infos
 
@@ -55,20 +61,22 @@ func HandleCheat(c *gin.Context, db *sql.DB) {
 	})
 }
 
-func getCheatInfo(db *sql.DB, date string) []cRowsInfo {
-	sqlStr := "select site, site_num from mip_spam where asc_date = '" + date + "' order by site_num desc"
+func getDimInfo(db *sql.DB, date string) []dimRowsInfo {
+	showText := []string{"", "二跳", "多跳"}
+	sqlStr := "select type, url, count from mip_step where date = '" + date + "' order by count desc"
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
-	var name string
-	var num int
-	cri := cRowsInfo{}
-	criArr := []cRowsInfo{}
+	var url string
+	var count, dType int
+	cri := dimRowsInfo{}
+	criArr := []dimRowsInfo{}
 	for rows.Next() {
-		err := rows.Scan(&name, &num)
+		err := rows.Scan(&dType, &url, &count)
 		autils.ErrHadle(err)
-		cri.Domain = name
-		cri.Num = num
+		cri.Domain = url
+		cri.Num = count
+		cri.MType = showText[dType]
 		criArr = append(criArr, cri)
 	}
 	err = rows.Err()
