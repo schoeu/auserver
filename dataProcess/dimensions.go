@@ -66,6 +66,8 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 	cri.Domain = "总计"
 	cri.Num = oData[1]
 
+	infos = append([]dimRowsInfo{cri}, infos...)
+
 	cd.Rows = infos
 
 	cd.Total = oData[0]
