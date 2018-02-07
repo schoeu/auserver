@@ -56,10 +56,14 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 		position,
 	}}
 
-	infos, sum := getDimInfo(db, s, start, limit)
+	infos := getDimInfo(db, s, start, limit)
 
 	cd.Rows = infos
-	cd.Total = sum
+
+	ch := make(chan int)
+	go getStepTotal(db, date, ch)
+
+	cd.Total = <-ch
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
@@ -68,7 +72,7 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 	})
 }
 
-func getDimInfo(db *sql.DB, date, start, limit string) ([]dimRowsInfo, int) {
+func getDimInfo(db *sql.DB, date, start, limit string) []dimRowsInfo {
 	showText := []string{"", "二跳", "多跳"}
 
 	var sqlStr bytes.Buffer
@@ -88,7 +92,7 @@ func getDimInfo(db *sql.DB, date, start, limit string) ([]dimRowsInfo, int) {
 	autils.ErrHadle(err)
 
 	var url string
-	var count, dType, sum int
+	var count, dType int
 	cri := dimRowsInfo{}
 	criArr := []dimRowsInfo{}
 	for rows.Next() {
@@ -98,11 +102,28 @@ func getDimInfo(db *sql.DB, date, start, limit string) ([]dimRowsInfo, int) {
 		cri.Num = count
 		cri.MType = showText[dType]
 		criArr = append(criArr, cri)
-		sum++
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 
 	defer rows.Close()
-	return criArr, sum
+	return criArr
+}
+
+func getStepTotal(db *sql.DB, date string, ch chan int) {
+	rows, err := db.Query("select count(id) from mip_step where date = '" + date + "'")
+
+	autils.ErrHadle(err)
+	count := 0
+	for rows.Next() {
+		err := rows.Scan(&count)
+		autils.ErrHadle(err)
+	}
+
+	err = rows.Err()
+	autils.ErrHadle(err)
+
+	defer rows.Close()
+
+	ch <- count
 }
