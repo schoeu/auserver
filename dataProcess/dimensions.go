@@ -123,11 +123,11 @@ func getStepTotal(db *sql.DB, date string, ch chan []int) {
 	rows, err := db.Query("select count(id), sum(url_count) from mip_step where date = '" + date + "'")
 	rsArr := []int{}
 	autils.ErrHadle(err)
-	var count, sum int
+	var count, sum sql.NullInt64
 	for rows.Next() {
 		err := rows.Scan(&count, &sum)
 		autils.ErrHadle(err)
-		rsArr = append(rsArr, count, sum)
+		rsArr = append(rsArr, int(count.Int64), int(sum))
 	}
 
 	err = rows.Err()
