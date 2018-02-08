@@ -55,6 +55,14 @@ func TgUrl(c *gin.Context, db *sql.DB) {
 	t = t.AddDate(0, 0, -2)
 	yesterday := autils.GetCurrentData(t)
 
+	q, _ := c.Get("conditions")
+	_, eDate := autils.AnaDate(q)
+
+	if eDate != "" {
+		yesterday = eDate
+	}
+
+	// url自定义时间优先级高于默认
 	if customDate != "" {
 		yesterday = customDate
 	}
@@ -65,7 +73,6 @@ func TgUrl(c *gin.Context, db *sql.DB) {
 	bf.WriteString(valiDate)
 	bf.WriteString("' ")
 
-	q, _ := c.Get("conditions")
 	tn := autils.AnaChained(q)
 
 	customTag := c.Query("tag")

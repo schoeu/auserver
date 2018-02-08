@@ -101,15 +101,15 @@ func getDimInfo(db *sql.DB, date, start, limit string) []dimRowsInfo {
 	autils.ErrHadle(err)
 
 	var url string
-	var count, dType int
+	var count, dType sql.NullInt64
 	cri := dimRowsInfo{}
 	criArr := []dimRowsInfo{}
 	for rows.Next() {
 		err := rows.Scan(&dType, &url, &count)
 		autils.ErrHadle(err)
 		cri.Domain = url
-		cri.Num = count
-		cri.MType = showText[dType]
+		cri.Num = int(count.Int64)
+		cri.MType = showText[int(dType.Int64)]
 		criArr = append(criArr, cri)
 	}
 	err = rows.Err()
