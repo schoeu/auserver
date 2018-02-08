@@ -127,7 +127,7 @@ func getStepTotal(db *sql.DB, date string, ch chan []int) {
 	for rows.Next() {
 		err := rows.Scan(&count, &sum)
 		autils.ErrHadle(err)
-		rsArr = append(rsArr, int(count.Int64), int(sum))
+		rsArr = append(rsArr, int(count.Int64), int(sum.Int64))
 	}
 
 	err = rows.Err()
