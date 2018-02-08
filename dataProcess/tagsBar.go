@@ -48,13 +48,19 @@ func GetTagsBarData(c *gin.Context, db *sql.DB) {
 	t = t.AddDate(0, 0, -2)
 	date := autils.GetCurrentData(t)
 
-	if customDate != "" {
-		date = customDate
-	}
-
 	q, _ := c.Get("conditions")
 	tn := autils.AnaChained(q)
 	match, err := regexp.MatchString("mip-", tn)
+
+	_, eDate := autils.AnaDate(q)
+
+	if eDate != "" {
+		date = eDate
+	}
+
+	if customDate != "" {
+		date = customDate
+	}
 
 	var bf bytes.Buffer
 	bf.WriteString("select tag_name, url_count, domain_count from tags where ana_date = '" + date)

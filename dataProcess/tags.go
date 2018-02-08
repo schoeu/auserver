@@ -39,6 +39,13 @@ func QueryTagsUrl(c *gin.Context, db *sql.DB) {
 	t = t.AddDate(0, 0, -2)
 	date := autils.GetCurrentData(t)
 
+	q, _ := c.Get("conditions")
+	_, eDate := autils.AnaDate(q)
+
+	if eDate != "" {
+		date = eDate
+	}
+
 	if customDate != "" {
 		date = customDate
 	}
