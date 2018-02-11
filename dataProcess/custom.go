@@ -16,7 +16,7 @@ type cInfoType struct {
 
 type cLineSeries struct {
 	Name       string   `json:"name"`
-	Data       []string `json:"data"`
+	Data       []float32 `json:"data"`
 	Type       string   `json:"type"`
 	YAxisIndex int      `json:"yAxisIndex"`
 }
@@ -24,12 +24,12 @@ type cLineSeries struct {
 // 组件柱状图api数据
 func GetCustomData(c *gin.Context, db *sql.DB) {
 	barText := "MIP流量"
-	barLineText := "定制化MIP流量占比"
+	barLineText := "定制化MIP流量"
 	rateText := "定制化MIP流量占比"
 
 	bit := cInfoType{}
 	var bs, bsLine, rateLine cLineSeries
-	var total, cust, rate string
+	var total, cust, rate float32
 
 	t := time.Now()
 	t = t.AddDate(0, 0, -1)
