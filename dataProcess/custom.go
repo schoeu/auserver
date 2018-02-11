@@ -102,7 +102,7 @@ func GetCustomData(c *gin.Context, db *sql.DB) {
 
 	rateLine.Name = rateText
 	rateLine.Type = "line"
-	rateLine.YAxisIndex = 0
+	rateLine.YAxisIndex = 1
 	bit.Series = append(bit.Series, rateLine)
 
 	err = rows.Err()
