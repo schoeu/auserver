@@ -15,20 +15,21 @@ type cInfoType struct {
 }
 
 type cLineSeries struct {
-	Name       string `json:"name"`
-	Data       []int  `json:"data"`
-	Type       string `json:"type"`
-	YAxisIndex int    `json:"yAxisIndex"`
+	Name       string   `json:"name"`
+	Data       []string `json:"data"`
+	Type       string   `json:"type"`
+	YAxisIndex int      `json:"yAxisIndex"`
 }
 
 // 组件柱状图api数据
 func GetCustomData(c *gin.Context, db *sql.DB) {
 	barText := "MIP流量"
 	barLineText := "定制化MIP流量占比"
+	rateText := "定制化MIP流量占比"
 
 	bit := cInfoType{}
-	var bs, bsLine cLineSeries
-	var total, cust int
+	var bs, bsLine, rateLine cLineSeries
+	var total, cust, rate string
 
 	t := time.Now()
 	t = t.AddDate(0, 0, -1)
@@ -71,20 +72,20 @@ func GetCustomData(c *gin.Context, db *sql.DB) {
 		}
 	}
 
-	sqlStr := "select total, cust from custom where date between '" + dateList[0] + "' and '" + dateList[len(dateList)-1] + "'"
+	sqlStr := "select total, cust, round(cust::numeric/total::numeric,3) as rate from custom where date between '" + dateList[0] + "' and '" + dateList[len(dateList)-1] + "'"
 
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&total, &cust)
+		err := rows.Scan(&total, &cust, &rate)
 		autils.ErrHadle(err)
 
 		bs.Data = append(bs.Data, total)
 
-		// tag count 处理
 		bsLine.Data = append(bsLine.Data, cust)
+		rateLine.Data = append(rateLine.Data, rate)
 	}
 
 	bit.Categories = dateList
@@ -98,6 +99,11 @@ func GetCustomData(c *gin.Context, db *sql.DB) {
 	bsLine.Type = "line"
 	bsLine.YAxisIndex = 0
 	bit.Series = append(bit.Series, bsLine)
+
+	rateLine.Name = rateText
+	rateLine.Type = "line"
+	rateLine.YAxisIndex = 0
+	bit.Series = append(bit.Series, rateLine)
 
 	err = rows.Err()
 	autils.ErrHadle(err)
