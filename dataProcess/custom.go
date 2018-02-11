@@ -71,7 +71,7 @@ func GetCustomData(c *gin.Context, db *sql.DB) {
 		}
 	}
 
-	sqlStr := "select total, cust from custom where date between '" + dateList[0] + "' and '" + dateList[len(dateList)-1]
+	sqlStr := "select total, cust from custom where date between '" + dateList[0] + "' and '" + dateList[len(dateList)-1] + "'"
 
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
@@ -96,7 +96,7 @@ func GetCustomData(c *gin.Context, db *sql.DB) {
 
 	bsLine.Name = barLineText
 	bsLine.Type = "line"
-	bsLine.YAxisIndex = 1
+	bsLine.YAxisIndex = 0
 	bit.Series = append(bit.Series, bsLine)
 
 	err = rows.Err()
