@@ -72,7 +72,7 @@ func GetCustomData(c *gin.Context, db *sql.DB) {
 		}
 	}
 
-	sqlStr := "select total, cust, round(cust::numeric / total::numeric * 100, 1) as rate from custom where date between '" + dateList[0] + "' and '" + dateList[len(dateList)-1] + "'"
+	sqlStr := "select total, cust, round(cust::numeric / total::numeric * 100, 1) as rate from custom where date >= '" + dateList[0] + "' and  date <= '" + dateList[len(dateList)-1] + "'"
 
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
