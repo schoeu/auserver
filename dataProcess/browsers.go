@@ -44,12 +44,16 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 		"请求数",
 		"num",
 		position,
+	}, {
+		"占比",
+		"rate",
+		position,
 	}}
 
 	infos, total := getBrowsersInfo(db, s)
 
 	for i, v := range infos {
-		infos[i].Rate = strconv.FormatFloat(float64(v.Num)/float64(total)*100, 'f', 2, 64)
+		infos[i].Rate = strconv.FormatFloat(float64(v.Num)/float64(total)*100, 'f', 2, 64) + "%"
 	}
 
 	cd.Rows = infos
