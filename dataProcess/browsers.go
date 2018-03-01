@@ -29,6 +29,11 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 		date = autils.GetCurrentData(time.Now().AddDate(0, 0, -1))
 	}
 
+	max := c.Query("max")
+	if max == "" {
+		max = "15"
+	}
+
 	q, _ := c.Get("conditions")
 	sDate := autils.AnaSigleDate(q)
 	s := date
@@ -40,6 +45,20 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 
 	isPie := c.Query("type")
 	if isPie == "pie" {
+		n, _ := strconv.Atoi(max)
+		var count int
+		for i, v := range infos {
+			if i < n {
+				count += v.Value
+			}
+		}
+
+		rsInfos := infos[:n]
+		cri := bsRowsInfo{}
+		cri.Name = "Others"
+		cri.Value = total - count
+		rsInfos = append(rsInfos, cri)
+
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "ok",
