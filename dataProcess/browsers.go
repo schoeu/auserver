@@ -49,11 +49,11 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 		cd := browsersData{}
 		cd.Columns = []tStruct{{
 			"浏览器",
-			"type",
+			"name",
 			position,
 		}, {
 			"请求数",
-			"num",
+			"value",
 			position,
 		}, {
 			"占比",
