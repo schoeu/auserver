@@ -10,9 +10,9 @@ import (
 )
 
 type bsRowsInfo struct {
-	Type string `json:"type"`
-	Num  int    `json:"num"`
-	Rate string `json:"rate"`
+	Name  string `json:"name"`
+	Value int    `json:"value"`
+	Rate  string `json:"rate"`
 }
 
 type browsersData struct {
@@ -23,7 +23,6 @@ type browsersData struct {
 // 作弊请求数据处理
 func BrowswersCount(c *gin.Context, db *sql.DB) {
 	position := "left"
-	cd := browsersData{}
 
 	date := c.Query("date")
 	if date == "" {
@@ -36,33 +35,44 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 	if sDate != "" {
 		s = sDate
 	}
-	cd.Columns = []tStruct{{
-		"浏览器",
-		"type",
-		position,
-	}, {
-		"请求数",
-		"num",
-		position,
-	}, {
-		"占比",
-		"rate",
-		position,
-	}}
 
 	infos, total := getBrowsersInfo(db, s)
 
-	for i, v := range infos {
-		infos[i].Rate = strconv.FormatFloat(float64(v.Num)/float64(total)*100, 'f', 2, 64) + "%"
+	isPie := c.Query("type")
+	if isPie == "pie" {
+		c.JSON(http.StatusOK, gin.H{
+			"status": 0,
+			"msg":    "ok",
+			"data":   infos,
+		})
+	} else {
+		cd := browsersData{}
+		cd.Columns = []tStruct{{
+			"浏览器",
+			"type",
+			position,
+		}, {
+			"请求数",
+			"num",
+			position,
+		}, {
+			"占比",
+			"rate",
+			position,
+		}}
+
+		for i, v := range infos {
+			infos[i].Rate = strconv.FormatFloat(float64(v.Value)/float64(total)*100, 'f', 2, 64) + "%"
+		}
+
+		cd.Rows = infos
+
+		c.JSON(http.StatusOK, gin.H{
+			"status": 0,
+			"msg":    "ok",
+			"data":   cd,
+		})
 	}
-
-	cd.Rows = infos
-
-	c.JSON(http.StatusOK, gin.H{
-		"status": 0,
-		"msg":    "ok",
-		"data":   cd,
-	})
 }
 
 func getBrowsersInfo(db *sql.DB, date string) ([]bsRowsInfo, int) {
@@ -73,13 +83,15 @@ func getBrowsersInfo(db *sql.DB, date string) ([]bsRowsInfo, int) {
 	var name string
 	var num int
 	var total int
+
 	cri := bsRowsInfo{}
 	criArr := []bsRowsInfo{}
+
 	for rows.Next() {
 		err := rows.Scan(&name, &num)
 		autils.ErrHadle(err)
-		cri.Type = name
-		cri.Num = num
+		cri.Name = name
+		cri.Value = num
 		criArr = append(criArr, cri)
 		total += num
 	}
