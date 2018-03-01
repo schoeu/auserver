@@ -45,24 +45,10 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 
 	isPie := c.Query("type")
 	if isPie == "pie" {
-		n, _ := strconv.Atoi(max)
-		var count int
-		for i, v := range infos {
-			if i < n {
-				count += v.Value
-			}
-		}
-
-		rsInfos := infos[:n]
-		cri := bsRowsInfo{}
-		cri.Name = "Others"
-		cri.Value = total - count
-		rsInfos = append(rsInfos, cri)
-
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "ok",
-			"data":   rsInfos,
+			"data":   infos,
 		})
 	} else {
 		cd := browsersData{}
