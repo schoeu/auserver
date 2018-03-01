@@ -62,7 +62,7 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "ok",
-			"data":   infos,
+			"data":   rsInfos,
 		})
 	} else {
 		cd := browsersData{}
