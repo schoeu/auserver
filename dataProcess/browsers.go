@@ -8,10 +8,20 @@ import (
 	"time"
 )
 
+type bsRowsInfo struct {
+	Type string `json:"type"`
+	Num  int    `json:"num"`
+}
+
+type browsersData struct {
+	Columns []tStruct    `json:"columns"`
+	Rows    []bsRowsInfo `json:"rows"`
+}
+
 // 作弊请求数据处理
 func BrowswersCount(c *gin.Context, db *sql.DB) {
 	position := "left"
-	cd := cheatData{}
+	cd := browsersData{}
 
 	date := c.Query("date")
 	if date == "" {
@@ -45,19 +55,19 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 	})
 }
 
-func getBrowsersInfo(db *sql.DB, date string) []cRowsInfo {
+func getBrowsersInfo(db *sql.DB, date string) []bsRowsInfo {
 	sqlStr := "select type, num from browsers where date = '" + date + "' order by num desc"
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
 	var name string
 	var num int
-	cri := cRowsInfo{}
-	criArr := []cRowsInfo{}
+	cri := bsRowsInfo{}
+	criArr := []bsRowsInfo{}
 	for rows.Next() {
 		err := rows.Scan(&name, &num)
 		autils.ErrHadle(err)
-		cri.Domain = name
+		cri.Type = name
 		cri.Num = num
 		criArr = append(criArr, cri)
 	}
