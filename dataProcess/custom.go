@@ -15,10 +15,10 @@ type cInfoType struct {
 }
 
 type cLineSeries struct {
-	Name       string   `json:"name"`
+	Name       string    `json:"name"`
 	Data       []float32 `json:"data"`
-	Type       string   `json:"type"`
-	YAxisIndex int      `json:"yAxisIndex"`
+	Type       string    `json:"type"`
+	YAxisIndex int       `json:"yAxisIndex"`
 }
 
 // 组件柱状图api数据
