@@ -5,12 +5,14 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type bsRowsInfo struct {
 	Type string `json:"type"`
 	Num  int    `json:"num"`
+	Rate string `json:"rate"`
 }
 
 type browsersData struct {
@@ -44,7 +46,11 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 		position,
 	}}
 
-	infos := getBrowsersInfo(db, s)
+	infos, total := getBrowsersInfo(db, s)
+
+	for i, v := range infos {
+		infos[i].Rate = strconv.FormatFloat(float64(v.Num/total), 'E', -1, 64)
+	}
 
 	cd.Rows = infos
 
@@ -55,13 +61,14 @@ func BrowswersCount(c *gin.Context, db *sql.DB) {
 	})
 }
 
-func getBrowsersInfo(db *sql.DB, date string) []bsRowsInfo {
+func getBrowsersInfo(db *sql.DB, date string) ([]bsRowsInfo, int) {
 	sqlStr := "select type, num from browsers where date = '" + date + "' order by num desc"
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
 	var name string
 	var num int
+	var total int
 	cri := bsRowsInfo{}
 	criArr := []bsRowsInfo{}
 	for rows.Next() {
@@ -70,10 +77,11 @@ func getBrowsersInfo(db *sql.DB, date string) []bsRowsInfo {
 		cri.Type = name
 		cri.Num = num
 		criArr = append(criArr, cri)
+		total += num
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 
 	defer rows.Close()
-	return criArr
+	return criArr, total
 }
