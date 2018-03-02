@@ -29,42 +29,36 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
-	var numSet []int
+	var numSet sql.NullInt64
+	var nsArr []sql.NullInt64
 	for rows.Next() {
 		err := rows.Scan(&numSet)
 		autils.ErrHadle(err)
+		nsArr = append(nsArr, numSet)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 	defer rows.Close()
 
-	if len(numSet) > 2 {
-		rData := numSet[0]
-		sData := numSet[1]
-		tData := numSet[2]
+	rData := int(nsArr[0].Int64)
+	sData := int(nsArr[1].Int64)
+	tData := int(nsArr[2].Int64)
 
-		thirdFlow := rData * tData / sData
+	thirdFlow := rData * tData / sData
 
-		disArr := []disRowsInfo{
-			{
-				"搜索流量",
-				rData - thirdFlow,
-			},
-			{
-				"第三方流量",
-				thirdFlow,
-			}}
+	disArr := []disRowsInfo{
+		{
+			"搜索流量",
+			rData - thirdFlow,
+		},
+		{
+			"第三方流量",
+			thirdFlow,
+		}}
 
-		c.JSON(http.StatusOK, gin.H{
-			"status": 0,
-			"msg":    "ok",
-			"data":   disArr,
-		})
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"status": 1,
-			"msg":    "暂无数据",
-			"data":   "",
-		})
-	}
+	c.JSON(http.StatusOK, gin.H{
+		"status": 0,
+		"msg":    "ok",
+		"data":   disArr,
+	})
 }
