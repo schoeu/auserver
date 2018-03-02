@@ -29,18 +29,18 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
-	var realnum, search, thirdparty sql.NullInt64
+	var numSet []sql.NullInt64
 	for rows.Next() {
-		err := rows.Scan(&realnum, &search, &thirdparty)
+		err := rows.Scan(&numSet)
 		autils.ErrHadle(err)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
 	defer rows.Close()
 
-	rData := int(realnum.Int64)
-	sData := int(search.Int64)
-	tData := int(thirdparty.Int64)
+	rData := int(numSet[0].Int64)
+	sData := int(numSet[1].Int64)
+	tData := int(numSet[2].Int64)
 
 	thirdFlow := rData * tData / sData
 
