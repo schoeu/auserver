@@ -25,7 +25,7 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 		date = sDate
 	}
 
-	sqlStr := "select click from all_flow where date = '" + date + "' union all select total from search where date = '" + date + "' union all select total from thirdparty where date = '" + date + "'"
+	sqlStr := "select click from all_flow where date = '" + date + "' union all select filter from search where date = '" + date + "' union all select filter from thirdparty where date = '" + date + "'"
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
