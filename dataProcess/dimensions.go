@@ -29,6 +29,7 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 	cd := dimData{}
 
 	start := c.Query("start")
+	showType := c.Query("type")
 	limit := c.Query("limit")
 
 	date := c.Query("date")
@@ -38,47 +39,70 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 
 	q, _ := c.Get("conditions")
 	sDate := autils.AnaSigleDate(q)
-	s := date
 	if sDate != "" {
-		s = sDate
-	}
-	cd.Columns = []tStruct{{
-		"站点",
-		"domain",
-		position,
-	}, {
-		"类型",
-		"type",
-		position,
-	}, {
-		"点击量",
-		"num",
-		position,
-	}}
-
-	ch := make(chan []int)
-	go getStepTotal(db, s, ch)
-	oData := <-ch
-
-	infos := getDimInfo(db, s, start, limit)
-
-	// 只在第一页显示
-	if start == "0" {
-		cri := dimRowsInfo{}
-		cri.Domain = "总计"
-		cri.Num = oData[1]
-		infos = append([]dimRowsInfo{cri}, infos...)
+		date = sDate
 	}
 
-	cd.Rows = infos
+	if showType == "pie" {
+		rs := getStepsDistribute(db, date)
+		// 饼图显示逻辑
+		disArr := []disRowsInfo{
+			{
+				"一跳",
+				rs[0],
+			},
+			{
+				"二跳",
+				rs[1],
+			},
+			{
+				"多跳",
+				rs[2],
+			}}
+		c.JSON(http.StatusOK, gin.H{
+			"status": 0,
+			"msg":    "ok",
+			"data":   disArr,
+		})
+	} else {
+		cd.Columns = []tStruct{{
+			"站点",
+			"domain",
+			position,
+		}, {
+			"类型",
+			"type",
+			position,
+		}, {
+			"点击量",
+			"num",
+			position,
+		}}
 
-	cd.Total = oData[0]
+		ch := make(chan []int)
+		go getStepTotal(db, date, ch)
+		oData := <-ch
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": 0,
-		"msg":    "ok",
-		"data":   cd,
-	})
+		infos := getDimInfo(db, date, start, limit)
+
+		// 只在第一页显示
+		if start == "0" {
+			cri := dimRowsInfo{}
+			cri.Domain = "总计"
+			cri.Num = oData[1]
+			infos = append([]dimRowsInfo{cri}, infos...)
+		}
+
+		cd.Rows = infos
+		cd.Total = oData[0]
+
+		c.JSON(http.StatusOK, gin.H{
+			"status": 0,
+			"msg":    "ok",
+			"data":   cd,
+		})
+	}
+
 }
 
 func getDimInfo(db *sql.DB, date, start, limit string) []dimRowsInfo {
@@ -136,4 +160,25 @@ func getStepTotal(db *sql.DB, date string, ch chan []int) {
 	defer rows.Close()
 
 	ch <- rsArr
+}
+
+func getStepsDistribute(db *sql.DB, date string) []int {
+	sqlStr := "select click from all_flow where date = '" + date + "' union all select sum(url_count) from mip_step where date = '" + date + "' and type = 1 union all select sum(url_count) from mip_step where date = '" + date + "' and type = 2"
+	rows, err := db.Query(sqlStr)
+	autils.ErrHadle(err)
+
+	var numSet sql.NullInt64
+	var nsArr []sql.NullInt64
+	var rs []int
+	for rows.Next() {
+		err := rows.Scan(&numSet)
+		autils.ErrHadle(err)
+		nsArr = append(nsArr, numSet)
+	}
+	err = rows.Err()
+	autils.ErrHadle(err)
+	defer rows.Close()
+
+	rs = append(rs, int(nsArr[0].Int64), int(nsArr[1].Int64), int(nsArr[2].Int64))
+	return rs
 }

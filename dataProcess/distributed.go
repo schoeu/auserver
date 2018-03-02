@@ -48,11 +48,11 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 
 	disArr := []disRowsInfo{
 		{
-			"搜索流量",
+			"百度来源",
 			rData - thirdFlow,
 		},
 		{
-			"第三方流量",
+			"第三方来源",
 			thirdFlow,
 		}}
 
