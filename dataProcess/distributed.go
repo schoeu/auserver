@@ -25,7 +25,7 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 		date = sDate
 	}
 
-	sqlStr := "select click from all_flow where date = '" + date + "' union all select filter from search where date = '" + date + "' union all select filter from thirdparty where date = '" + date + "'"
+	sqlStr := "select click from all_flow where date = '" + date + "' union all select filter from search where date = '" + date + "' union all select filter from thirdparty where date = '" + date + "' union all select sum(url_count) from mip_step where date = '" + date + "' and type in (1, 2)"
 	rows, err := db.Query(sqlStr)
 	autils.ErrHadle(err)
 
@@ -43,8 +43,9 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 	rData := int(nsArr[0].Int64)
 	sData := int(nsArr[1].Int64)
 	tData := int(nsArr[2].Int64)
+	stepData := int(nsArr[3].Int64)
 
-	thirdFlow := rData * tData / sData
+	thirdFlow := (rData + stepData) * tData / sData
 
 	disArr := []disRowsInfo{
 		{
