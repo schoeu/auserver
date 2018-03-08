@@ -16,7 +16,7 @@ type disRowsInfo struct {
 func DistributeData(c *gin.Context, db *sql.DB) {
 	date := c.Query("date")
 	if date == "" {
-		date = autils.GetCurrentData(time.Now().AddDate(0, 0, -1))
+		date = autils.GetCurrentData(time.Now().AddDate(0, 0, -2))
 	}
 
 	q, _ := c.Get("conditions")
