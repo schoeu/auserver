@@ -9,10 +9,9 @@ import (
 )
 
 type newerRow struct {
-	Pv        int `json:"pv"`
-	Domain    int `json:"domain"`
-	Newer     int `json:"newer"`
-	RecordUrl int `json:"record"`
+	Pv     int `json:"pv"`
+	Domain int `json:"domain"`
+	Newer  int `json:"newer"`
 }
 
 type newerData struct {
@@ -38,23 +37,19 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 	allFlowCh := make(chan int)
 	dCountCh := make(chan int)
 	newerCh := make(chan int)
-	recordCh := make(chan int)
 
 	go getAllFlow(db, allFlowCh, day)
 	go getDCount(db, dCountCh, day)
 	go getNewer(db, newerCh, dayTime)
-	go getRecord(db, recordCh, day)
 
 	allFlow := <-allFlowCh
 	dCount := <-dCountCh
 	newer := <-newerCh
-	record := <-recordCh
 
 	row := newerRow{}
 	row.Pv = allFlow
 	row.Domain = dCount
 	row.Newer = newer
-	row.RecordUrl = record
 
 	td.Rows = append(td.Rows, row)
 
@@ -69,10 +64,6 @@ func FlowTotal(c *gin.Context, db *sql.DB) {
 	}, {
 		"站点净增数",
 		"newer",
-		center,
-	}, {
-		"收录URL总数",
-		"record",
 		center,
 	}}
 
@@ -103,6 +94,12 @@ func getAllFlow(db *sql.DB, ch chan int, day string) {
 
 // 域名总数
 func getDCount(db *sql.DB, ch chan int, day string) {
+	t, _ := autils.ParseTime(day)
+	tDage := time.Now().AddDate(0, 0, -2)
+	if tDage.After(t) {
+		day = autils.GetCurrentData(tDage)
+	}
+
 	rows, err := db.Query("select count(domain) from site_detail where date = '" + day + "'")
 	autils.ErrHadle(err)
 
@@ -136,25 +133,4 @@ func getNewer(db *sql.DB, ch chan int, dayTime time.Time) {
 	err = rows.Err()
 	autils.ErrHadle(err)
 	ch <- newers[0] - newers[1]
-}
-
-// 返回收录url数
-func getRecord(db *sql.DB, ch chan int, day string) {
-	var records int64
-
-	var count sql.NullInt64
-	rows, err := db.Query("select record_url from site_detail where date = '" + day + "' order by record_url desc limit 1 offset 0")
-
-	autils.ErrHadle(err)
-
-	for rows.Next() {
-		err := rows.Scan(&count)
-		autils.ErrHadle(err)
-
-		records = count.Int64
-	}
-	err = rows.Err()
-	autils.ErrHadle(err)
-
-	ch <- int(records)
 }

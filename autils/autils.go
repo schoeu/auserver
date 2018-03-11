@@ -176,3 +176,9 @@ func OpenDb(dbTyepe string, dbStr string) *sql.DB {
 	ErrHadle(err)
 	return db
 }
+
+func ParseTime(date string) (time.Time, error) {
+	shortForm := "2006-01-02"
+	t, err := time.Parse(shortForm, date)
+	return t, err
+}
