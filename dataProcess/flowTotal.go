@@ -96,7 +96,7 @@ func getAllFlow(db *sql.DB, ch chan int, day string) {
 func getDCount(db *sql.DB, ch chan int, day string) {
 	t, _ := autils.ParseTime(day)
 	tDage := time.Now().AddDate(0, 0, -2)
-	if tDage.After(t) {
+	if t.After(tDage) {
 		day = autils.GetCurrentData(tDage)
 	}
 

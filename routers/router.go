@@ -28,4 +28,5 @@ var RouterMap = map[string]func(*gin.Context, *sql.DB){
 	"custom":         dataProcess.GetCustomData,
 	"browsers":       dataProcess.BrowswersCount,
 	"distributedata": dataProcess.DistributeData,
+	"domaincount":    dataProcess.GetDCount,
 }
