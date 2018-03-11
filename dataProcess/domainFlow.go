@@ -103,7 +103,7 @@ func GetDFlow(c *gin.Context, db *sql.DB) {
 	if len(lcs.Data) == 0 || len(dps.Data) == 0 || len(rts.Data) == 0 || len(ct.Data) == 0 || len(dt.Data) == 0 || len(fr.Data) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"status": -1,
-			"msg":    "无数据",
+			"msg":    "无对应数据。",
 			"data":   "",
 		})
 		return
