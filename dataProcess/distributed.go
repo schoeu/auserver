@@ -40,7 +40,7 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 	autils.ErrHadle(err)
 	defer rows.Close()
 
-	if len(nsArr == 4) {
+	if len(nsArr) == 4 {
 		rData := int(nsArr[0].Int64)
 		sData := int(nsArr[1].Int64)
 		tData := int(nsArr[2].Int64)
