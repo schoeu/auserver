@@ -40,26 +40,34 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 	autils.ErrHadle(err)
 	defer rows.Close()
 
-	rData := int(nsArr[0].Int64)
-	sData := int(nsArr[1].Int64)
-	tData := int(nsArr[2].Int64)
-	stepData := int(nsArr[3].Int64)
+	if len(nsArr == 4) {
+		rData := int(nsArr[0].Int64)
+		sData := int(nsArr[1].Int64)
+		tData := int(nsArr[2].Int64)
+		stepData := int(nsArr[3].Int64)
 
-	thirdFlow := (rData + stepData) * tData / sData
+		thirdFlow := (rData + stepData) * tData / sData
 
-	disArr := []disRowsInfo{
-		{
-			"百度来源",
-			rData + stepData,
-		},
-		{
-			"第三方来源",
-			thirdFlow,
-		}}
+		disArr := []disRowsInfo{
+			{
+				"百度来源",
+				rData + stepData,
+			},
+			{
+				"第三方来源",
+				thirdFlow,
+			}}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": 0,
-		"msg":    "ok",
-		"data":   disArr,
-	})
+		c.JSON(http.StatusOK, gin.H{
+			"status": 0,
+			"msg":    "ok",
+			"data":   disArr,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status": 1,
+			"msg":    "error data.",
+			"data":   "",
+		})
+	}
 }
