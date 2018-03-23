@@ -20,9 +20,9 @@ func DistributeData(c *gin.Context, db *sql.DB) {
 	}
 
 	q, _ := c.Get("conditions")
-	sDate := autils.AnaSigleDate(q)
-	if sDate != "" {
-		date = sDate
+	_, eDate := autils.AnaDate(q)
+	if eDate != "" {
+		date = eDate
 	}
 
 	sqlStr := "select click from all_flow where date = '" + date + "' union all select filter from search where date = '" + date + "' union all select filter from thirdparty where date = '" + date + "' union all select sum(url_count) from mip_step where date = '" + date + "' and type in (1, 2)"

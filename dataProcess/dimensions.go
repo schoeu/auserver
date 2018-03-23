@@ -38,9 +38,9 @@ func Dimensions(c *gin.Context, db *sql.DB) {
 	}
 
 	q, _ := c.Get("conditions")
-	sDate := autils.AnaSigleDate(q)
-	if sDate != "" {
-		date = sDate
+	_, eDate := autils.AnaDate(q)
+	if eDate != "" {
+		date = eDate
 	}
 
 	if showType == "pie" {
